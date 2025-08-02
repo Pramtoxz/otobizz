@@ -1,4 +1,4 @@
-<nav class="main-header navbar navbar-expand navbar-dark bg-maroon">
+<nav class="main-header navbar navbar-expand navbar-dark bg-purple">
     <!-- Left navbar links -->
     <ul class="navbar-nav">
         <li class="nav-item">
@@ -45,7 +45,7 @@
                 </div>
 
             </a>
-            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right bg-maroon">
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right bg-purple">
                 <span class="dropdown-item dropdown-header text-white">Hallo</span>
                 <div class="dropdown-divider"></div>
                 <a href="#" class="dropdown-item text-white" style="transition: background-color 0.3s;">

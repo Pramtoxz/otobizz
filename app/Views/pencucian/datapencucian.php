@@ -12,17 +12,18 @@
                 </div>
                 <div class="card-body">
                     <div class="buttons">
-                        <a href="<?= site_url('karyawan/formtambah') ?>" class="btn btn-danger">Tambah Data</a>
+                        <a href="<?= site_url('pencucian/formtambah') ?>" class="btn btn-danger">Tambah Data</a>
                     </div>
                     <div class="table-responsive datatable-minimal mt-4">
-                        <table class="table table-hover" id="tabelKaryawan">
+                        <table class="table table-hover" id="tabelCucian">
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>ID Karyawan</th>
-                                    <th>Nama Karyawan</th>
-                                    <th>No HP</th>
-                                    <th>Alamat</th>
+                                    <th>ID Cucian</th>
+                                    <th>Tanggal</th>
+                                    <th>Nama Pelanggan</th>
+                                    <th>Plat Nomor</th>
+                                    <th>Paket</th>
                                     <th class="no-short">Aksi</th>
                                 </tr>
                             </thead>
@@ -40,14 +41,14 @@
             <div class="modal-header"
                 style="background-color: #D81B60; color: white; border-top-left-radius: 15px; border-top-right-radius: 15px;">
                 <h5 class="modal-title" id="detailModalLabel">
-                    <i class="fas fa-id-card mr-2"></i> Detail Karyawan
+                    <i class="fas fa-id-card mr-2"></i> Detail Pelanggan
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true" style="color: white;">&times;</span>
                 </button>
             </div>
             <div class="modal-body p-4" id="detail-content" style="overflow-y: auto;">
-                <!-- Detail Karyawan akan dimuat melalui AJAX -->
+                <!-- Detail Dokter akan dimuat melalui AJAX -->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
@@ -63,10 +64,10 @@
 <?= $this->section('script') ?>
 <script>
     $(document).ready(function() {
-        $('#tabelKaryawan').DataTable({
+        $('#tabelCucian').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "<?= site_url('karyawan/viewKaryawan') ?>",
+            ajax: "<?= site_url('pencucian/viewCucian') ?>",
             info: true,
             ordering: true,
             paging: true,
@@ -80,7 +81,7 @@
         });
 
         $(document).on('click', '.btn-delete', function() {
-            var idkaryawan = $(this).data('idkaryawan');
+            var idcucian = $(this).data('idcucian');
 
             Swal.fire({
                 title: 'Apakah Anda yakin ingin menghapus data ini?',
@@ -94,9 +95,9 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: "POST",
-                        url: "<?php echo site_url('karyawan/delete'); ?>",
+                        url: "<?php echo site_url('pencucian/delete'); ?>",
                         data: {
-                            idkaryawan: idkaryawan
+                            idcucian: idcucian
                         },
                         dataType: 'json',
                         success: function(response) {
@@ -107,7 +108,7 @@
                                     icon: 'success'
                                 });
                                 // Refresh DataTable
-                                $('#tabelkaryawan').DataTable().ajax.reload();
+                                $('#tabelCucian').DataTable().ajax.reload();
                             } else {
                                 Swal.fire({
                                     title: 'Error!',
@@ -131,15 +132,15 @@
     });
 
     $(document).on('click', '.btn-edit', function() {
-        var idkaryawan = $(this).data('idkaryawan');
-        window.location.href = "<?php echo site_url('karyawan/formedit/'); ?>" + idkaryawan;
+        var idcucian = $(this).data('idcucian');
+        window.location.href = "<?php echo site_url('pencucian/formedit/'); ?>" + idcucian;
     });
 
     $(document).on('click', '.btn-detail', function() {
-        var idkaryawan = $(this).data('idkaryawan');
+        var idcucian = $(this).data('idcucian');
         $.ajax({
             type: "GET",
-            url: "<?= site_url('karyawan/detail/') ?>" + idkaryawan,
+            url: "<?= site_url('pencucian/detail/') ?>" + idcucian,
             dataType: 'html',
             success: function(response) {
                 $('#detail-content').html(response);
@@ -147,7 +148,7 @@
             },
             error: function(xhr, status, error) {
                 console.error(xhr.responseText);
-                alert('Gagal memuat detail karyawan');
+                alert('Gagal memuat detail pelanggan');
             }
         });
     });

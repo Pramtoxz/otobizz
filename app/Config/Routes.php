@@ -59,7 +59,7 @@ $routes->group('paket', ['filter' => ['auth', 'role:admin']], function ($routes)
     $routes->get('formtambah', 'PaketController::formtambah');
     $routes->post('save', 'PaketController::save');
     $routes->get('formedit/(:segment)', 'PaketController::formedit/$1');
-    $routes->post('updatedata/(:segment)', 'PaketController::updatedata/$1');
+    $routes->post('updatedata', 'PaketController::updatedata');
     $routes->post('delete', 'PaketController::delete');
     $routes->get('detail/(:segment)', 'PaketController::detail/$1');
 });
@@ -75,17 +75,17 @@ $routes->group('pengeluaran', ['filter' => ['auth', 'role:admin']], function ($r
     $routes->get('detail/(:segment)', 'PengeluaranController::detail/$1');
 });
 
-$routes->group('reservasi', ['filter' => ['auth', 'role:admin']], function ($routes) {
-    $routes->get('/', 'ReservasiController::index');
-    $routes->get('viewreservasi', 'ReservasiController::viewReservasi');
-    $routes->get('formtambah', 'ReservasiController::formtambah');
-    $routes->post('save', 'ReservasiController::save');
-    $routes->get('formedit/(:segment)', 'ReservasiController::formedit/$1');
-    $routes->post('updatedata/(:segment)', 'ReservasiController::updatedata/$1');
-    $routes->get('detail/(:segment)', 'ReservasiController::detail/$1');
-    $routes->get('gettamu', 'ReservasiController::getTamu');
-    $routes->get('getkamar', 'ReservasiController::getKamar');
-    $routes->post('delete', 'ReservasiController::delete');
+$routes->group('pencucian', ['filter' => ['auth', 'role:admin']], function ($routes) {
+    $routes->get('/', 'PencucianController::index');
+    $routes->get('viewCucian', 'PencucianController::viewCucian');
+    $routes->get('formtambah', 'PencucianController::formtambah');
+    $routes->post('save', 'PencucianController::save');
+    $routes->get('formedit/(:segment)', 'PencucianController::formedit/$1');
+    $routes->post('updatedata/(:segment)', 'PencucianController::updatedata/$1');
+    $routes->get('detail/(:segment)', 'PencucianController::detail/$1');
+    $routes->get('gettamu', 'PencucianController::getTamu');
+    $routes->get('getkamar', 'PencucianController::getKamar');
+    $routes->post('delete', 'PencucianController::delete');
     $routes->get('viewgettamu', 'ReservasiController::viewGetTamu');
     $routes->get('viewgetkamar', 'ReservasiController::viewGetKamar');
     $routes->post('viewgetkamar', 'ReservasiController::viewGetKamar');
@@ -93,32 +93,6 @@ $routes->group('reservasi', ['filter' => ['auth', 'role:admin']], function ($rou
     $routes->post('updatestatus', 'ReservasiController::updatestatus');
 
 });
-
-$routes->post('reservasi/debugNewId', 'ReservasiController::debugNewId');
-$routes->get('reservasi/detail/(:any)', 'ReservasiController::detail/$1');
-$routes->post('reservasi/cancel/(:any)', 'ReservasiController::cancel/$1');
-$routes->get('reservasi/cekin/(:any)', 'ReservasiController::cekin/$1');
-
-$routes->group('checkin', ['filter' => ['auth', 'role:admin']], function ($routes) {
-    $routes->get('/', 'CheckinController::index');
-    $routes->get('viewcheckin', 'CheckinController::viewCheckin');
-    $routes->get('formtambah', 'CheckinController::formtambah');
-    $routes->post('save', 'CheckinController::save');
-    $routes->get('formedit/(:segment)', 'CheckinController::formedit/$1');
-    $routes->post('updateCheckin', 'CheckinController::updateCheckin');
-    $routes->get('detail/(:segment)', 'CheckinController::detail/$1');
-    $routes->get('faktur/(:segment)', 'CheckinController::faktur/$1');
-    $routes->get('getreservasi', 'CheckinController::getReservasi');
-    $routes->get('viewgetreservasi', 'CheckinController::viewGetReservasi');
-    $routes->get('gettamu', 'CheckinController::getTamu');
-    $routes->get('getkamar', 'ReservasiController::getKamar');
-    $routes->post('delete', 'ReservasiController::delete');
-    $routes->get('viewgettamu', 'ReservasiController::viewGetTamu');
-    $routes->get('viewgetkamar', 'ReservasiController::viewGetKamar');
-    $routes->post('viewgetkamar', 'ReservasiController::viewGetKamar');
-});
-
-
 
 $routes->group('checkout', ['filter' => ['auth', 'role:admin']], function ($routes) {
     $routes->get('/', 'CheckoutController::index');

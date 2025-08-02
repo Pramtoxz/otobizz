@@ -1,6 +1,6 @@
- <aside class="main-sidebar sidebar-dark-maroon elevation-4">
+ <aside class="main-sidebar sidebar-light-purple elevation-4">
      <!-- Brand Logo -->
-     <a href="<?= base_url('/') ?>" class="brand-link bg-maroon">
+     <a href="<?= base_url('/') ?>" class="brand-link bg-purple">
          <img src="<?= base_url() ?>/assets/img/citra11.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3">
          <span style="display: block; text-align: center;">Wisma Citra Sabaleh</span>
      </a>
@@ -19,8 +19,6 @@
                  </div>
              </div>
          </div>
-
-
          <!-- Sidebar Menu -->
          <nav class="mt-2">
              <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
@@ -29,9 +27,9 @@
                  <?php if(session()->get('role') == 'admin' || session()->get('role') == 'pimpinan'): ?>
                  <li class="nav-item">
                      <a href="<?php base_url() ?>/admin" class="nav-link <?= (current_url() == base_url('admin')) ? 'active' : '' ?>">
-                         <i class="nav-icon fas fa-tachometer-alt"></i>
+                         <i class="nav-icon fas fa-home"></i>
                          <p>
-                             Dashboard
+                             Home
                          </p>
                      </a>
                  </li>
@@ -64,21 +62,12 @@
                          </p>
                      </a>
                  </li>
+                 <li class="nav-header">Transaction</li>
                  <li class="nav-item">
-                     <a href="<?php base_url() ?>/pengeluaran" class="nav-link <?= (current_url() == base_url('pengeluaran')) ? 'active' : '' ?>">
-                         <i class="nav-icon fas fa-money-bill-wave"></i>
+                     <a href="<?php base_url() ?>/pencucian" class="nav-link <?= (current_url() == base_url('pencucian')) ? 'active' : '' ?>">
+                         <i class="nav-icon fas fa-hand-sparkles"></i>
                          <p>
-                             Pengeluaran
-                         </p>
-                     </a>
-                 </li>
-
-                 <li class="nav-header">Transaksi</li>
-                 <li class="nav-item">
-                     <a href="<?php base_url() ?>/reservasi" class="nav-link <?= (current_url() == base_url('reservasi')) ? 'active' : '' ?>">
-                         <i class="nav-icon fas fa-calendar-week"></i>
-                         <p>
-                             Reservasi
+                             Pencucian
                          </p>
                      </a>
                  </li>
@@ -86,7 +75,7 @@
                      <a href="<?php base_url() ?>/checkin" class="nav-link <?= (current_url() == base_url('checkin')) ? 'active' : '' ?>">
                          <i class="nav-icon fas fa-hotel"></i>
                          <p>
-                             Check-In
+                             Kendaraan Selesai
                          </p>
                      </a>
                  </li>

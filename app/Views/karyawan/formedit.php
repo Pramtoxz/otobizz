@@ -2,7 +2,7 @@
 <?= $this->section('content') ?>
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <div class="card card-maroon">
+        <div class="card card-purple">
             <div class="card-header text-center">
                 <h3 class="card-title">Edit Data Karyawan</h3>
             </div>

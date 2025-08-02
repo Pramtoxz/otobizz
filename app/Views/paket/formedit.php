@@ -1,52 +1,46 @@
 <?= $this->extend('layout/main') ?>
 <?= $this->section('content') ?>
 <div class="row justify-content-center">
-    <div class="col-md-10">
-        <div class="card card-maroon">
+    <div class="col-md-8">
+        <div class="card card-purple">
             <div class="card-header text-center">
-                <h3 class="card-title">Edit Data Kamar</h3>
+                <h3 class="card-title">Edit Data Paket</h3>
             </div>
 
             <div class="card-body">
-                <?= form_open('paket/updatedata/' . $paket['idpaket'], ['id' => 'formeditpaket', 'enctype' => 'multipart/form-data']) ?>
+                <?= form_open(base_url('paket/updatedata'), ['id' => 'formedit', 'enctype' => 'multipart/form-data']) ?>
                 <?= csrf_field() ?>
-               
-                  <div class="row justify-content-center">
+                
+                <div class="row justify-content-center">
                     <div class="col-md-8">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="idpaket">ID paket</label>
-                                    <input type="text" id="idpaket" name="idpaket" class="form-control" value="<?= $paket['idpaket'] ?>" readonly>
-                                    <div class="invalid-feedback error_idpaket"></div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="namapaket">Nama paket</label>
-                                    <input type="text" id="namapaket" name="namapaket" class="form-control" value="<?= $paket['namapaket'] ?>">
-                                    <div class="invalid-feedback error_namapaket"></div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="harga">Harga Paket</label>
-                                    <input type="text" id="harga" name="harga" class="form-control" placeholder="Rp. 0" value="<?= $paket['harga'] ?>">
-                                    <div class="invalid-feedback error_harga"></div>
-                                </div>
-                            
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="keterangan">Deskripsi</label>
-                                    <textarea id="keterangan" name="keterangan" class="form-control" rows="8"><?= $paket['keterangan'] ?></textarea>
-                                    <div class="invalid-feedback error_keterangan"></div>
-                                </div>
-                            </div>
-                              <div class="col-md-12 text-center">
-                        <button type="submit" class="btn btn-primary" id="tombolSimpan">
-                            <i class="fas fa-save"></i> SIMPAN
-                        </button>
-                        <a class="btn btn-secondary ml-2" href="<?= base_url('paket') ?>">
-                            <i class="fas fa-arrow-left"></i> KEMBALI
-                        </a>
-                    </div>
+                        <div class="form-group">
+                            <label for="idpaket">ID Paket</label>
+                            <input type="text" id="idpaket" name="idpaket" class="form-control" value="<?= $paket['idpaket']; ?>" readonly>
+                            <div class="invalid-feedback error_idpaketq"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="namapaket">Nama Paket</label>
+                            <input type="text" id="namapaket" name="namapaket" class="form-control" value="<?= $paket['namapaket']; ?>">
+                            <div class="invalid-feedback error_nama"></div>
+                        </div>                        
+                        <div class="form-group">
+                            <label for="harga">Harga</label>
+                            <input type="number" id="harga" name="harga" class="form-control" value="<?= $paket['harga']; ?>">
+                            <div class="invalid-feedback error_harga"></div>
+                        </div> 
+                        <div class="form-group">
+                            <label for="keterangan">Keterangan</label>
+                            <textarea type="text" id="keterangan" name="keterangan" class="form-control"><?= isset($paket['keterangan']) ? $paket['keterangan'] : '' ?></textarea>
+                            <div class="invalid-feedback error_keterangan"></div>
+                        </div>                       
+                        <div class="form-group text-center mt-4">
+                            <button type="submit" class="btn btn-primary" id="tombolSimpan">
+                                <i class="fas fa-save"></i> SIMPAN
+                            </button>
+                            <a class="btn btn-secondary ml-2" href="<?= base_url('karyawan') ?>">
+                                <i class="fas fa-arrow-left"></i> KEMBALI
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -61,98 +55,81 @@
 <?= $this->section('script') ?>
 <script>
     $(function() {
-        // Format currency function
-        function formatRupiah(value) {
-            const number = parseInt(value.replace(/[^0-9]/g, ''), 10);
-            if (isNaN(number)) return '';
-            return 'Rp. ' + number.toLocaleString('id-ID');
-        }
-
-        // Remove currency format to get plain number
-        function removeCurrencyFormat(value) {
-            return value.replace(/[^0-9]/g, '');
-        }
-
-        // Format currency on input
-        $('#harga').on('input', function() {
-            const input = $(this);
-            const value = input.val();
-            const formatted = formatRupiah(value);
-            input.val(formatted);
-        });
-
-        $('#formtambahpaket').submit(function(e) {
+        $('#formedit').submit(function(e) {
             e.preventDefault();
-            const hargaPlain = removeCurrencyFormat($('#harga').val());
-            let formData = new FormData(this);
-            formData.set('harga', hargaPlain);
 
+            var formData = new FormData(this); // Menggunakan FormData untuk mendukung file upload
             $.ajax({
                 type: "post",
                 url: $(this).attr('action'),
-                data: formData,
-                contentType: false,
-                processData: false,
+                data: formData, // Menggunakan formData untuk mendukung file upload
+                contentType: false, // Menunjukkan tidak adanya konten
+                processData: false, // Menunjukkan tidak adanya proses data
                 dataType: "json",
                 beforeSend: function() {
                     $('#tombolSimpan').html('<i class="fas fa-spin fa-spinner"></i> Tunggu');
                     $('#tombolSimpan').prop('disabled', true);
                 },
+
                 complete: function() {
                     $('#tombolSimpan').html('<i class="fas fa-save"></i> Simpan');
                     $('#tombolSimpan').prop('disabled', false);
                 },
+
                 success: function(response) {
                     if (response.error) {
                         let err = response.error;
 
-                        if (err.idpaket) {
-                            $('#idpaket').addClass('is-invalid');
-                            $('.error_idpaket').html(err.idpaket);
+                        if (err.error_idpaket) {
+                            $('#idpaket').addClass('is-invalid').removeClass('is-valid');
+                            $('.error_idpaket').html(err.error_idpaket);
                         } else {
                             $('#idpaket').removeClass('is-invalid').addClass('is-valid');
                             $('.error_idpaket').html('');
                         }
-
-                        if (err.namapaket) {
-                            $('#namapaket').addClass('is-invalid');
-                            $('.error_namapaket').html(err.namapaket);
+                        if (err.error_namapaket) {
+                            $('#namapaket').addClass('is-invalid').removeClass('is-valid');
+                            $('.error_namapaket').html(err.error_namapaket);
                         } else {
                             $('#namapaket').removeClass('is-invalid').addClass('is-valid');
                             $('.error_namapaket').html('');
                         }
-                        if (err.harga) {
-                            $('#harga').addClass('is-invalid');
-                            $('.error_harga').html(err.harga);
-                        } else {
-                            $('#harga').removeClass('is-invalid').addClass('is-valid');
-                            $('.error_harga').html('');
-                        }
-                        if (err.keterangan) {
-                            $('#keterangan').addClass('is-invalid');
-                            $('.error_keterangan').html(err.keterangan);
+
+                        if (err.error_keterangan) {
+                            $('#keterangan').addClass('is-invalid').removeClass('is-valid');
+                            $('.error_keterangan').html(err.error_keterangan);
                         } else {
                             $('#keterangan').removeClass('is-invalid').addClass('is-valid');
                             $('.error_keterangan').html('');
                         }
-                    } else if (response.sukses) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Sukses',
-                            text: response.sukses,
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
+                    }
 
-                        setTimeout(() => {
-                            window.location.href = "<?= site_url('paket') ?>";
-                        }, 1500);
+                    if (response.sukses) {
+                        const swalWithBootstrapButtons = Swal.mixin({
+                            customClass: {
+                                confirmButton: "btn btn-success",
+                                cancelButton: "btn btn-danger"
+                            },
+                            buttonsStyling: false
+                        });
+                        swalWithBootstrapButtons.fire({
+                            title: "Sukses!",
+                            text: "Data paket berhasil disimpan.",
+                            icon: "success",
+                            confirmButtonText: "OK"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '<?= site_url('paket') ?>';
+                            }
+                        });
                     }
                 },
-                error: function(xhr) {
-                    alert('Terjadi kesalahan:\n' + xhr.responseText);
+
+                error: function(e) {
+                    alert('Error \n' + e.responseText);
                 }
             });
+
             return false;
         });
     });

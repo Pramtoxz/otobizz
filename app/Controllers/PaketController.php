@@ -123,30 +123,32 @@ class PaketController extends BaseController
         return view('paket/formedit', $data);
     }
 
-    public function updatedata($idpaket)
+   public function updatedata()
     {
-         $idpaket = $this->request->getPost('idpaket');
+        if ($this->request->isAJAX()) {
+            $idpaket = $this->request->getPost('idpaket');
+            // Fix variable names - remove $ from concatenated names
             $namapaket = $this->request->getPost('namapaket');
             $harga = $this->request->getPost('harga');
             $keterangan = $this->request->getPost('keterangan');
+
             $rules = [
                 'namapaket' => [
-                    'label' => 'Nama Paket',
+                    'label' => 'Nama Paket', // Fixed label
                     'rules' => 'required',
                     'errors' => [
                         'required' => '{field} tidak boleh kosong',
                     ]
                 ],
-
                 'harga' => [
-                    'label' => 'Harga',
+                    'label' => 'Harga Paket',
                     'rules' => 'required',
                     'errors' => [
                         'required' => '{field} tidak boleh kosong',
                     ]
                 ],
                 'keterangan' => [
-                    'label' => 'Deskripsi',
+                    'label' => 'Keterangan Paket',
                     'rules' => 'required',
                     'errors' => [
                         'required' => '{field} tidak boleh kosong',
@@ -178,10 +180,14 @@ class PaketController extends BaseController
             return $this->response->setJSON([
                 'sukses' => 'Data paket berhasil diperbarui'
             ]);
-            echo json_encode($json);
         }
 
-    public function delete()
+        return $this->response->setJSON([
+            'error' => 'Akses tidak valid'
+        ]);
+    }
+
+      public function delete()
     {
         if ($this->request->isAJAX()) {
             $idpaket = $this->request->getPost('idpaket');
