@@ -41,18 +41,26 @@
                  <?php if(session()->get('role') == 'admin'): ?>
                  <li class="nav-header">Master</li>
                  <li class="nav-item">
-                     <a href="<?php base_url() ?>/pelanggan" class="nav-link <?= (current_url() == base_url('pelanggan')) ? 'active' : '' ?>">
+                     <a href="<?php base_url() ?>/karyawan" class="nav-link <?= (current_url() == base_url('karyawan')) ? 'active' : '' ?>">
                          <i class="nav-icon fas fa-user-friends "></i>
+                         <p>
+                             Karyawan
+                         </p>
+                     </a>
+                 </li>
+                 <li class="nav-item">
+                     <a href="<?php base_url() ?>/pelanggan" class="nav-link <?= (current_url() == base_url('pelanggan')) ? 'active' : '' ?>">
+                         <i class="nav-icon fas fa-users"></i>
                          <p>
                              Pelanggan
                          </p>
                      </a>
                  </li>
-                 <li class="nav-item">
-                     <a href="<?php base_url() ?>/kamar" class="nav-link <?= (current_url() == base_url('kamar')) ? 'active' : '' ?>">
-                         <i class="nav-icon fas fa-bed"></i>
+                  <li class="nav-item">
+                     <a href="<?php base_url() ?>/paket" class="nav-link <?= (current_url() == base_url('paket')) ? 'active' : '' ?>">
+                         <i class="nav-icon fas fa-list"></i>
                          <p>
-                             Kamar
+                             Paket Cucian
                          </p>
                      </a>
                  </li>

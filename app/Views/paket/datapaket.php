@@ -9,18 +9,17 @@
                 </div>
                 <div class="card-body">
                     <div class="buttons">
-                        <a href="<?= site_url('kamar/formtambah') ?>" class="btn btn-danger">Tambah Kamar</a>
+                        <a href="<?= site_url('paket/formtambah') ?>" class="btn btn-danger">Tambah Paket</a>
                     </div>
                     <div class="table-responsive datatable-minimal mt-4">
-                        <table class="table table-hover" id="tabelKamar">
+                        <table class="table table-hover" id="tabelPaket">
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>ID Kamar</th>
-                                    <th>Nama Kamar</th>
+                                    <th>ID Paket</th>
+                                    <th>Nama Paket</th>
                                     <th>Harga</th>
-                                    <th>Nominal DP</th>
-                                    <th>Status Hari Ini</th>
+                                    <th>Keterangan</th>
                                     <th class="no-short">Aksi</th>
                                 </tr>
                             </thead>
@@ -56,10 +55,10 @@
 <?= $this->section('script') ?>
 <script>
     $(document).ready(function() {
-        const table = $('#tabelKamar').DataTable({
+        const table = $('#tabelPaket').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "<?= site_url('kamar/viewKamar') ?>",
+            ajax: "<?= site_url('paket/viewPaket') ?>",
             order: [
                 [0, 'desc']
             ],
@@ -70,10 +69,10 @@
         });
 
         $(document).on('click', '.btn-delete', function() {
-            const id = $(this).data('id');
+            const idpaket = $(this).data('idpaket');
 
             Swal.fire({
-                title: 'Yakin ingin menghapus kamar ini?',
+                title: 'Yakin ingin menghapus paket ini?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
@@ -82,8 +81,8 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $.post("<?= site_url('kamar/delete') ?>", {
-                        id_kamar: id
+                    $.post("<?= site_url('paket/delete') ?>", {
+                        idpaket: idpaket
                     }, function(response) {
                         if (response.sukses) {
                             Swal.fire('Berhasil!', response.sukses, 'success');
@@ -100,18 +99,18 @@
         });
 
         $(document).on('click', '.btn-edit', function() {
-            const id = $(this).data('id');
-            window.location.href = "<?= site_url('kamar/formedit/') ?>" + id;
+            const idpaket = $(this).data('idpaket');
+            window.location.href = "<?= site_url('paket/formedit/') ?>" + idpaket;
         });
 
         $(document).on('click', '.btn-detail', function() {
-            const id = $(this).data('id');
-            $.get("<?= site_url('kamar/detail/') ?>" + id, function(response) {
+            const idpaket = $(this).data('idpaket');
+            $.get("<?= site_url('paket/detail/') ?>" + idpaket, function(response) {
                 $('#detail-content').html(response);
                 $('#detailModal').modal('show');
             }).fail(function(xhr) {
                 console.error(xhr.responseText);
-                Swal.fire('Gagal!', 'Tidak dapat memuat detail kamar.', 'error');
+                Swal.fire('Gagal!', 'Tidak dapat memuat detail paket.', 'error');
             });
         });
     });

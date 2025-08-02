@@ -41,16 +41,27 @@ $routes->group('pelanggan', ['filter' => ['auth', 'role:admin']], function ($rou
     $routes->get('detail/(:segment)', 'PelangganController::detail/$1');
     $routes->post('delete', 'PelangganController::delete');
 });
+$routes->group('karyawan', ['filter' => ['auth', 'role:admin']], function ($routes) {
+    $routes->get('/', 'KaryawanController::index');
+    $routes->get('viewKaryawan', 'KaryawanController::viewKaryawan');
+    $routes->get('formtambah', 'KaryawanController::formtambah');
+    $routes->post('save', 'KaryawanController::save');
+    $routes->get('formedit/(:segment)', 'KaryawanController::formedit/$1');
+    $routes->post('updatedata', 'KaryawanController::updatedata');
+    $routes->get('detail/(:segment)', 'KaryawanController::detail/$1');
+    $routes->post('delete', 'KaryawanController::delete');
+});
 
-$routes->group('kamar', ['filter' => ['auth', 'role:admin']], function ($routes) {
-    $routes->get('/', 'KamarController::index');
-    $routes->get('viewKamar', 'KamarController::viewKamar');
-    $routes->get('formtambah', 'KamarController::formtambah');
-    $routes->post('save', 'KamarController::save');
-    $routes->get('formedit/(:segment)', 'KamarController::formedit/$1');
-    $routes->post('updatedata/(:segment)', 'KamarController::updatedata/$1');
-    $routes->post('delete', 'KamarController::delete');
-    $routes->get('detail/(:segment)', 'KamarController::detail/$1');
+
+$routes->group('paket', ['filter' => ['auth', 'role:admin']], function ($routes) {
+    $routes->get('/', 'PaketController::index');
+    $routes->get('viewPaket', 'PaketController::viewPaket');
+    $routes->get('formtambah', 'PaketController::formtambah');
+    $routes->post('save', 'PaketController::save');
+    $routes->get('formedit/(:segment)', 'PaketController::formedit/$1');
+    $routes->post('updatedata/(:segment)', 'PaketController::updatedata/$1');
+    $routes->post('delete', 'PaketController::delete');
+    $routes->get('detail/(:segment)', 'PaketController::detail/$1');
 });
 
 $routes->group('pengeluaran', ['filter' => ['auth', 'role:admin']], function ($routes) {
