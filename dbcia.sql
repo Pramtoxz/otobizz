@@ -41,10 +41,14 @@ CREATE TABLE `kendaraan_selesai` (
   `idselesai` char(30) DEFAULT NULL,
   `idpencucian` char(30) DEFAULT NULL,
   `jamjemput` time DEFAULT NULL,
-  `totalbayar` double DEFAULT NULL
+  `totalbayar` double DEFAULT NULL,
+  `totaldibayar` double DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `kendaraan_selesai` */
+
+insert  into `kendaraan_selesai`(`idselesai`,`idpencucian`,`jamjemput`,`totalbayar`,`totaldibayar`) values 
+('SLS-20250803-0001','FKP-20250803-0001','13:59:00',15000,20000);
 
 /*Table structure for table `otp_codes` */
 
@@ -78,7 +82,7 @@ DROP TABLE IF EXISTS `paket_cucian`;
 CREATE TABLE `paket_cucian` (
   `idpaket` char(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `namapaket` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `jenis` double DEFAULT NULL,
+  `jenis` varchar(50) DEFAULT NULL,
   `harga` double DEFAULT NULL,
   `keterangan` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -91,7 +95,7 @@ CREATE TABLE `paket_cucian` (
 /*Data for the table `paket_cucian` */
 
 insert  into `paket_cucian`(`idpaket`,`namapaket`,`jenis`,`harga`,`keterangan`,`created_at`,`updated_at`,`deleted_at`) values 
-('PKT0001','Paket Salju',NULL,15000,'asdsdsd',NULL,NULL,NULL);
+('PKT0001','Paket Salju','motor',15000,'asdsdsd',NULL,NULL,NULL);
 
 /*Table structure for table `pelanggan` */
 
@@ -115,7 +119,8 @@ CREATE TABLE `pelanggan` (
 /*Data for the table `pelanggan` */
 
 insert  into `pelanggan`(`idpelanggan`,`nama`,`alamat`,`nohp`,`jk`,`platnomor`,`created_at`,`updated_at`,`deleted_at`) values 
-('PL0001','cia','cia','123','L','cia',NULL,NULL,NULL);
+('PL0001','cia','cia','123','L','BA 4365 gg',NULL,NULL,NULL),
+('PL0002','Theresia','Padang','089828282','P','BA 4344 NH',NULL,NULL,NULL);
 
 /*Table structure for table `pencucian` */
 
@@ -126,13 +131,16 @@ CREATE TABLE `pencucian` (
   `idkaryawan` char(30) DEFAULT NULL,
   `tgl` date DEFAULT NULL,
   `jamdatang` time DEFAULT NULL,
-  `idpelanggan` char(1) DEFAULT NULL,
+  `idpelanggan` char(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `idpaket` char(30) DEFAULT NULL,
   `status` enum('diproses','dijemput','selesai') DEFAULT NULL,
   PRIMARY KEY (`idpencucian`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `pencucian` */
+
+insert  into `pencucian`(`idpencucian`,`idkaryawan`,`tgl`,`jamdatang`,`idpelanggan`,`idpaket`,`status`) values 
+('FKP-20250803-0001','KW0001','2025-08-03','12:05:47','PL0002','PKT0001','selesai');
 
 /*Table structure for table `users` */
 
@@ -160,10 +168,8 @@ CREATE TABLE `users` (
 /*Data for the table `users` */
 
 insert  into `users`(`id`,`username`,`email`,`password`,`role`,`status`,`last_login`,`remember_token`,`created_at`,`updated_at`,`deleted_at`) values 
-(1,'admin','admin@example.com','$2y$10$hI1mC1S1wh2sz1NqPDgDl.I.ZM9sjbmqm4aiFI6lzzB7XgOvZgnhe','admin','active','2025-08-02 14:00:27',NULL,'2025-06-14 21:50:56','2025-06-14 21:50:56',NULL),
-(2,'Rindiani','rindianir573@gmail.com','$2y$10$hI1mC1S1wh2sz1NqPDgDl.I.ZM9sjbmqm4aiFI6lzzB7XgOvZgnhe','user','active','2025-07-28 00:00:11',NULL,'2025-06-28 10:30:11','2025-06-28 10:30:11',NULL),
-(26,'Pimpinan','pimpinan@gmail.com','$2y$10$hI1mC1S1wh2sz1NqPDgDl.I.ZM9sjbmqm4aiFI6lzzB7XgOvZgnhe','pimpinan','active','2025-07-27 12:58:39',NULL,NULL,NULL,NULL),
-(27,'chika','chikafebria26@gmail.com','$2y$10$rNc.eNEHFMWbsziKX6poSetuvzRRWozxgGE7Bq7VmJTA4pJJNl50K','user','active','2025-07-29 17:47:57',NULL,'2025-07-29 17:47:35','2025-07-29 17:47:35',NULL);
+(1,'admin','admin@example.com','$2y$10$hI1mC1S1wh2sz1NqPDgDl.I.ZM9sjbmqm4aiFI6lzzB7XgOvZgnhe','admin','active','2025-08-03 15:08:42',NULL,'2025-06-14 21:50:56','2025-06-14 21:50:56',NULL),
+(26,'Pimpinan','pimpinan@gmail.com','$2y$10$hI1mC1S1wh2sz1NqPDgDl.I.ZM9sjbmqm4aiFI6lzzB7XgOvZgnhe','pimpinan','active','2025-07-27 12:58:39',NULL,NULL,NULL,NULL);
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
