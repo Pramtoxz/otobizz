@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Wisma Citra Sabaleh</title>
+    <title>Login - OTO BIZZ CUCIAN SALJU PADANG</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -11,17 +11,17 @@
                 extend: {
                     colors: {
                         primary: {
-                            50: '#fdf2f8',
-                            100: '#fce7f3',
-                            200: '#fbcfe8',
-                            300: '#f9a8d4',
-                            400: '#f472b6',
-                            500: '#ec4899',
-                            600: '#db2777',
-                            700: '#be185d',
-                            800: '#9d174d',
-                            900: '#831843',
-                            950: '#500724',
+                            50: '#f3f0ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#6F42C1',
+                            600: '#9C7AE8',
+                            700: '#4A2C85',
+                            800: '#553c9a',
+                            900: '#4c1d95',
+                            950: '#2e1065',
                         }
                     },
                     animation: {
@@ -44,8 +44,8 @@
                             '50%': { transform: 'translateY(-20px)' },
                         },
                         pulseGlow: {
-                            '0%, 100%': { boxShadow: '0 0 20px rgba(236, 72, 153, 0.3)' },
-                            '50%': { boxShadow: '0 0 40px rgba(236, 72, 153, 0.6)' },
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(111, 66, 193, 0.3)' },
+                            '50%': { boxShadow: '0 0 40px rgba(111, 66, 193, 0.6)' },
                         }
                     }
                 }
@@ -60,7 +60,7 @@
             font-family: 'Poppins', sans-serif;
         }
         .gradient-bg {
-            background: linear-gradient(135deg, #ec4899 0%, #be185d 25%, #9333ea 50%, #7c3aed 75%, #6b21a8 100%);
+            background: linear-gradient(135deg, #6F42C1 0%, #9C7AE8 25%, #4A2C85 50%, #553c9a 75%, #4c1d95 100%);
         }
         .glass-effect {
             background: rgba(255, 255, 255, 0.95);
@@ -83,15 +83,16 @@
     <div class="w-full max-w-md relative z-10">
         <!-- Main Card -->
         <div class="glass-effect rounded-3xl overflow-hidden animate-slide-up shadow-2xl">
-            <!-- Header with Hotel Branding -->
-            <div class="bg-gradient-to-r from-primary-500 to-purple-600 p-8 text-white text-center relative overflow-hidden">
+            <!-- Header with Oto Bizz Branding -->
+            <div class="bg-gradient-to-r from-primary-500 to-primary-700 p-8 text-white text-center relative overflow-hidden">
                 <div class="absolute inset-0 bg-white/10"></div>
                 <div class="relative z-10">
                     <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
-                        <i class="fas fa-hotel text-3xl text-white"></i>
+                        <img src="<?= base_url('assets/img/otobizz.png') ?>" alt="Logo" class="h-full w-auto">
                     </div>
-                    <h1 class="text-3xl font-bold mb-2">Citra Sabaleh</h1>
-                    <p class="text-pink-100 text-sm">Selamat datang kembali</p>
+                    <h1 class="text-3xl font-bold mb-2">Oto Bizz</h1>
+                    <h2 class="text-lg font-medium mb-1">Cucian Salju Padang</h2>
+                    <p class="text-purple-100 text-sm">Selamat datang kembali</p>
                 </div>
             </div>
 
@@ -182,9 +183,6 @@
                                 Ingat Saya
                             </label>
                         </div>
-                        <a href="<?= site_url('auth/forgot-password') ?>" class="text-sm text-primary-600 hover:text-primary-500 font-medium transition duration-300">
-                            Lupa Password?
-                        </a>
                     </div>
 
                     <!-- Login Button -->
@@ -192,7 +190,7 @@
                         <button
                             type="submit"
                             id="login-btn"
-                            class="w-full bg-gradient-to-r from-primary-500 to-purple-600 text-white py-3 px-6 rounded-xl font-bold text-lg hover:from-primary-600 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-primary-300 transform hover:scale-105 transition duration-300 shadow-lg animate-pulse-glow"
+                            class="w-full bg-gradient-to-r from-primary-500 to-primary-700 text-white py-3 px-6 rounded-xl font-bold text-lg hover:from-primary-600 hover:to-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300 transform hover:scale-105 transition duration-300 shadow-lg animate-pulse-glow"
                         >
                             <i class="fas fa-sign-in-alt mr-2"></i>
                             <span id="login-text">Masuk</span>
@@ -200,18 +198,8 @@
                     </div>
                 </form>
 
-                <!-- Register Link -->
-                <div class="mt-8 text-center">
-                    <p class="text-gray-600">
-                        Belum memiliki akun?
-                        <a href="<?= site_url('auth/register') ?>" class="font-semibold text-primary-600 hover:text-primary-500 transition duration-300">
-                            Daftar Sekarang
-                        </a>
-                    </p>
-                </div>
-
                 <!-- Back to Home -->
-                <div class="mt-6 text-center">
+                <div class="mt-8 text-center">
                     <a href="<?= site_url('/') ?>" class="text-gray-500 hover:text-primary-500 transition duration-300 text-sm">
                         <i class="fas fa-arrow-left mr-2"></i>
                         Kembali ke Beranda
@@ -270,9 +258,9 @@
                             
                             Swal.fire({
                                 title: 'Login Berhasil!',
-                                text: 'Selamat datang kembali',
+                                text: 'Selamat datang di Oto Bizz',
                                 icon: 'success',
-                                confirmButtonColor: '#ec4899',
+                                confirmButtonColor: '#6F42C1',
                                 timer: 1500,
                                 showConfirmButton: false
                             }).then(() => {

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Wisma Citra Sabaleh <?= $title ?? 'SI' ?></title>
+    <title>OTO BIZZ CUCIAN SALJU PADANG <?= $title ?? 'SI' ?></title>
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"
@@ -39,7 +39,7 @@
     <!-- Site wrapper -->
     <div class="wrapper">
         <!-- <div class="preloader flex-column justify-content-center align-items-center">
-            <img class="animation__wobble" src="<?= base_url() ?>/assets/img/citra11.png" alt="AdminLTELogo"
+            <img class="animation__wobble" src="<?= base_url() ?>/assets/img/otobizz.png" alt="AdminLTELogo"
                 height="120" width="400">
         </div> -->
         <!-- Navbar -->

@@ -92,7 +92,7 @@ class PencucianController extends BaseController
                 ->add('action', function ($row) {
                     $button1 = '<button type="button" class="btn btn-primary btn-sm btn-detail" data-idpencucian="' . $row->idpencucian . '" ><i class="fas fa-eye"></i></button>';
                     $buttonsGroup = '<div style="display: flex;">' . $button1;
-                    if ($row->status != 3) {
+                    if ($row->status != 'selesai') {
                         $button2 = '<button type="button" class="btn btn-warning btn-sm btn-status" data-idpencucian="' . $row->idpencucian . '" style="margin-left: 5px;"><i class="fas fa-sync-alt"></i></button>';
                         $button3 = '<button type="button" class="btn btn-secondary btn-sm btn-edit" data-idpencucian="' . $row->idpencucian . '" style="margin-left: 5px;"><i class="fas fa-pencil-alt"></i></button>';
                         $button4 = '<button type="button" class="btn btn-danger btn-sm btn-delete" data-idpencucian="' . $row->idpencucian . '" style="margin-left: 5px;"><i class="fas fa-trash"></i></button>';
@@ -439,5 +439,45 @@ class PencucianController extends BaseController
 
             return $this->response->setJSON($json);
         }
+    }
+
+    public function tracking($idpencucian = null)
+    {
+        if (!$idpencucian) {
+            return redirect()->to(base_url());
+        }
+
+        $db = db_connect();
+        
+        // Join tabel pencucian dengan pelanggan, paket, dan karyawan untuk tracking
+        $pencucianQuery = $db
+            ->table('pencucian')
+            ->select('pencucian.*, 
+                     pelanggan.nama as nama_pelanggan, 
+                     pelanggan.alamat, 
+                     pelanggan.nohp, 
+                     pelanggan.platnomor,
+                     paket_cucian.namapaket, 
+                     paket_cucian.harga, 
+                     paket_cucian.jenis,
+                     karyawan.nama as nama_karyawan')
+            ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan')
+            ->join('paket_cucian', 'paket_cucian.idpaket = pencucian.idpaket')
+            ->join('karyawan', 'karyawan.idkaryawan = pencucian.idkaryawan')
+            ->where('pencucian.idpencucian', $idpencucian);
+        
+        $pencucianData = $pencucianQuery->get()->getRowArray();
+
+        if (!$pencucianData) {
+            $data = [
+                'error' => 'ID Pencucian tidak ditemukan. Pastikan ID yang Anda masukkan benar.'
+            ];
+        } else {
+            $data = [
+                'pencucian' => $pencucianData
+            ];
+        }
+
+        return view('home/tracking', $data);
     }
 }

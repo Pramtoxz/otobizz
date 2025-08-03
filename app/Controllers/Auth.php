@@ -364,4 +364,87 @@ class Auth extends BaseController
             'message' => 'Invalid request'
         ]);
     }
+
+    public function changePassword()
+    {
+        // Pastikan user sudah login
+        if (!session()->get('logged_in')) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Anda harus login terlebih dahulu'
+            ]);
+        }
+
+        $currentPassword = $this->request->getPost('current_password');
+        $newPassword = $this->request->getPost('new_password');
+        $confirmPassword = $this->request->getPost('confirm_password');
+
+        // Validasi input
+        if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Semua field password harus diisi'
+            ]);
+        }
+
+        if (strlen($newPassword) < 6) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Password baru minimal 6 karakter'
+            ]);
+        }
+
+        if ($newPassword !== $confirmPassword) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Konfirmasi password tidak cocok'
+            ]);
+        }
+
+        // Ambil data user dari database
+        $userId = session()->get('user_id');
+        $db = db_connect();
+        $user = $db->table('users')
+            ->where('id', $userId)
+            ->get()
+            ->getRowArray();
+
+        if (!$user) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'User tidak ditemukan'
+            ]);
+        }
+
+        // Verifikasi password lama
+        if (!password_verify($currentPassword, $user['password'])) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Password saat ini tidak benar'
+            ]);
+        }
+
+        // Hash password baru
+        $hashedNewPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+
+        // Update password di database
+        $updateResult = $db->table('users')
+            ->where('id', $userId)
+            ->update([
+                'password' => $hashedNewPassword,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+        if ($updateResult) {
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'Password berhasil diubah'
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Gagal mengubah password. Silakan coba lagi.'
+            ]);
+        }
+    }
 }

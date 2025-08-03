@@ -13,12 +13,17 @@ $routes->get('/', 'Home::index');
 $routes->get('auth', 'Auth::index');
 $routes->post('auth/login', 'Auth::login');
 $routes->get('auth/logout', 'Auth::logout');
+$routes->post('auth/change-password', 'Auth::changePassword');
+
+// Public Tracking Routes
+$routes->get('tracking', 'Home::tracking');
+$routes->get('pencucian/tracking/(:segment)', 'PencucianController::tracking/$1');
 
 // Forgot Password dengan OTP
-$routes->get('auth/forgot-password', 'Auth::forgotPassword');
-$routes->post('auth/forgot-password', 'Auth::forgotPassword');
-$routes->post('auth/verify-forgot-password-otp', 'Auth::verifyForgotPasswordOTP');
-$routes->post('auth/reset-password', 'Auth::resetPassword');
+// $routes->get('auth/forgot-password', 'Auth::forgotPassword');
+// $routes->post('auth/forgot-password', 'Auth::forgotPassword');
+// $routes->post('auth/verify-forgot-password-otp', 'Auth::verifyForgotPasswordOTP');
+// $routes->post('auth/reset-password', 'Auth::resetPassword');
 
 // Resend OTP
 $routes->post('auth/resend-otp', 'Auth::resendOTP');
@@ -96,6 +101,18 @@ $routes->group('checkout', ['filter' => ['auth', 'role:admin']], function ($rout
     $routes->post('updatedata/(:segment)', 'CheckoutController::updatedata/$1');
 });
 
+$routes->group('selesai', ['filter' => ['auth', 'role:admin']], function ($routes) {
+    $routes->get('/', 'SelesaiController::index');
+    $routes->get('viewSelesai', 'SelesaiController::viewSelesai');
+    $routes->get('formtambah', 'SelesaiController::formtambah');
+    $routes->post('save', 'SelesaiController::save');
+    $routes->get('getpencuciandijemput', 'SelesaiController::getPencucianDijemput');
+    $routes->get('viewgetpencuciandijemput', 'SelesaiController::viewGetPencucianDijemput');
+    $routes->post('delete', 'SelesaiController::delete');
+    $routes->get('formedit/(:segment)', 'SelesaiController::formedit/$1');
+    $routes->post('updatedata/(:segment)', 'SelesaiController::updatedata/$1');
+    $routes->get('detail/(:segment)', 'SelesaiController::detail/$1');
+});
 
 
 //Laporan

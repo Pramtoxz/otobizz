@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifikasi OTP - Wisma Citra Sabaleh</title>
+    <title>Verifikasi OTP - OTO BIZZ CUCIAN SALJU PADANG</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
