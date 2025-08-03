@@ -19,7 +19,7 @@
                                     <th>ID Paket</th>
                                     <th>Nama Paket</th>
                                     <th>Harga</th>
-                                    <th>Keterangan</th>
+                                    <th>Jenis Paket</th>
                                     <th class="no-short">Aksi</th>
                                 </tr>
                             </thead>

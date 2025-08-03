@@ -37,7 +37,7 @@ $routes->group('pelanggan', ['filter' => ['auth', 'role:admin']], function ($rou
     $routes->post('save', 'PelangganController::save');
     $routes->get('formedit/(:segment)', 'PelangganController::formedit/$1');
     $routes->post('update', 'PelangganController::update');
-    $routes->post('updatedata/(:segment)', 'PelangganController::updatedata/$1');
+    $routes->post('updatedata', 'PelangganController::updatedata');
     $routes->get('detail/(:segment)', 'PelangganController::detail/$1');
     $routes->post('delete', 'PelangganController::delete');
 });
@@ -64,17 +64,6 @@ $routes->group('paket', ['filter' => ['auth', 'role:admin']], function ($routes)
     $routes->get('detail/(:segment)', 'PaketController::detail/$1');
 });
 
-$routes->group('pengeluaran', ['filter' => ['auth', 'role:admin']], function ($routes) {
-    $routes->get('/', 'PengeluaranController::index');
-    $routes->get('viewPengeluaran', 'PengeluaranController::viewPengeluaran');
-    $routes->get('formtambah', 'PengeluaranController::formtambah');
-    $routes->post('save', 'PengeluaranController::save');
-    $routes->get('formedit/(:segment)', 'PengeluaranController::formedit/$1');
-    $routes->post('updatedata/(:segment)', 'PengeluaranController::updatedata/$1');
-    $routes->post('delete', 'PengeluaranController::delete');
-    $routes->get('detail/(:segment)', 'PengeluaranController::detail/$1');
-});
-
 $routes->group('pencucian', ['filter' => ['auth', 'role:admin']], function ($routes) {
     $routes->get('/', 'PencucianController::index');
     $routes->get('viewCucian', 'PencucianController::viewCucian');
@@ -83,15 +72,14 @@ $routes->group('pencucian', ['filter' => ['auth', 'role:admin']], function ($rou
     $routes->get('formedit/(:segment)', 'PencucianController::formedit/$1');
     $routes->post('updatedata/(:segment)', 'PencucianController::updatedata/$1');
     $routes->get('detail/(:segment)', 'PencucianController::detail/$1');
-    $routes->get('gettamu', 'PencucianController::getTamu');
-    $routes->get('getkamar', 'PencucianController::getKamar');
+    $routes->get('getpelanggan', 'PencucianController::getPelanggan');
+    $routes->get('viewgetpelanggan', 'PencucianController::viewGetPelanggan');
+    $routes->get('getpaket', 'PencucianController::getPaket');
+    $routes->get('viewgetpaket', 'PencucianController::viewGetPaket');
+    $routes->get('getkaryawan', 'PencucianController::getKaryawan');
+    $routes->get('viewgetkaryawan', 'PencucianController::viewGetKaryawan');
     $routes->post('delete', 'PencucianController::delete');
-    $routes->get('viewgettamu', 'ReservasiController::viewGetTamu');
-    $routes->get('viewgetkamar', 'ReservasiController::viewGetKamar');
-    $routes->post('viewgetkamar', 'ReservasiController::viewGetKamar');
-    $routes->get('cekbukti/(:segment)', 'ReservasiController::cekbukti/$1');
-    $routes->post('updatestatus', 'ReservasiController::updatestatus');
-
+    $routes->post('ubahstatus', 'PencucianController::ubahstatus');
 });
 
 $routes->group('checkout', ['filter' => ['auth', 'role:admin']], function ($routes) {

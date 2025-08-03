@@ -46,7 +46,7 @@
                             <div class="invalid-feedback error_jk"></div>
                         </div>
                         <div class="form-group">
-                            <label for="cover">Plat Nomor</label>
+                            <label for="platnomor">Plat Nomor</label>
                             <input type="text" id="platnomor" name="platnomor" class="form-control" value="<?= $pelanggan['platnomor'] ?>">
                             <div class="invalid-feedback error_platnomor"></div>
                         </div>

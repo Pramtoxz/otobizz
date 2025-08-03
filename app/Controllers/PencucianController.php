@@ -18,63 +18,54 @@ use Endroid\QrCode\RoundBlockSizeMode;
 use Endroid\QrCode\Writer\PngWriter;
 use App\Libraries\QRCodeGenerator;
 use Endroid\QrCode\QrCode;
+use App\Models\Pencucian as ModelPencucian;
 
 
 
 class PencucianController extends BaseController
 {
 
-    public function Detail($nofak = null)
+    public function detail($idpencucian)
     {
         $db = db_connect();
-        $userQuery = $db
-            ->table('cucianmasuk')
-            ->select('cucianmasuk.nofak, cucianmasuk.tglmasuk, cucianmasuk.tglkeluar, konsumen.nama, konsumen.alamat, konsumen.nohp, cucianmasuk.grandtotal')
-            ->join('konsumen', 'konsumen.idkonsumen = cucianmasuk.idkonsumen')
-            ->where('nofak', $nofak);
-        $user = $userQuery->get();
+        
+        // Join tabel pencucian dengan pelanggan, paket, dan karyawan
+        $pencucianQuery = $db
+            ->table('pencucian')
+            ->select('pencucian.*, 
+                     pelanggan.nama as nama_pelanggan, 
+                     pelanggan.alamat, 
+                     pelanggan.nohp, 
+                     pelanggan.platnomor,
+                     paket_cucian.namapaket, 
+                     paket_cucian.harga, 
+                     paket_cucian.jenis,
+                     karyawan.nama as nama_karyawan')
+            ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan')
+            ->join('paket_cucian', 'paket_cucian.idpaket = pencucian.idpaket')
+            ->join('karyawan', 'karyawan.idkaryawan = pencucian.idkaryawan')
+            ->where('pencucian.idpencucian', $idpencucian);
+        
+        $pencucianData = $pencucianQuery->get()->getRowArray();
 
-        $detailcucianmasuk = $db
-            ->table('detailcucianmasuk')
-            ->select('jeniscucian.jenis, satuan.namasatuan, berat, total')
-            ->join('jeniscucian', 'jeniscucian.kdjeniscucian = detailcucianmasuk.kdjeniscucian', 'left')
-            ->join('satuan', 'satuan.kdsatuan = detailcucianmasuk.kdsatuan', 'left')
-            ->where('nofak', $nofak);
-        $detail = $detailcucianmasuk->get();
-
-        $userData = $user->getRow();
-        $detailData = $detail->getResultArray();
-
-        if (!$userData) {
-            return redirect()->back();
+        if (!$pencucianData) {
+            return redirect()->back()->with('error', 'Data pencucian tidak ditemukan');
         }
 
-        // Membuat QR Code
-        $qrCode = QrCode::create("http://localhost:8080/home/cekstatus/$nofak")
+        // Membuat QR Code untuk tracking pencucian
+        $qrCode = QrCode::create("http://localhost:8080/pencucian/tracking/$idpencucian")
             ->setSize(300)
             ->setMargin(10);
 
         $writer = new PngWriter();
         $qrCodeImage = $writer->write($qrCode)->getDataUri();
 
-        // Menambahkan nomor urut pada setiap item
-        foreach ($detailData as $index => &$value) {
-            $value['nomor'] = $index + 1;
-            if (!empty($value['jenis']) && empty($value['namasatuan'])) {
-                $value['berat'] .= ' KG';
-            } elseif (empty($value['jenis']) && !empty($value['namasatuan'])) {
-                $value['berat'] .= ' Helai';
-            }
-        }
-
         $data = [
             'qrCodeImage' => $qrCodeImage,
-            'cucianmasuk' => $userData,
-            'detail' => $detailData,
-            'qrCodeImage' => $qrCodeImage
+            'pencucian' => $pencucianData
         ];
 
-        return view('cucianmasuk/detail', $data);
+        return view('pencucian/detail', $data);
     }
 
 
@@ -92,9 +83,10 @@ class PencucianController extends BaseController
         if ($this->request->isAJAX()) {
             $db = db_connect();
             $produk = $db->table('pencucian')
-                ->select('pencucian.idpencucian,pencucian.tgl,  pelanggan.nama, pelanggan.platnomor, paket_cucian.namapaket ,pencucian.status')
+                ->select('pencucian.idpencucian,pencucian.tgl,  pelanggan.nama, pelanggan.platnomor, paket_cucian.namapaket , karyawan.nama as nama_karyawan, pencucian.status')
                 ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan')
                 ->join('paket_cucian', 'paket_cucian.idpaket = pencucian.idpaket')
+                ->join('karyawan', 'karyawan.idkaryawan = pencucian.idkaryawan')
                 ->groupBy('idpencucian');
             return DataTable::of($produk)
                 ->add('action', function ($row) {
@@ -127,208 +119,161 @@ class PencucianController extends BaseController
     public function formtambah()
     {
         $db = db_connect();
-        $tanggal = date('Ymd'); // Format tanggal menjadi YYYYMMDD
-        $randomNumber = mt_rand(100, 999); // Generate 3 angka acak
-        $kode_otomatis = 'FAK-' . $tanggal . '-' . $randomNumber; // Format kode menjadi FAK-YYYYMMDD-RRR
-
-        $db->table('temp')->emptyTable();
-        $konsumen = $db->table('konsumen')->get()->getResultArray();
-        $data = [
-            'title' => 'Tambah Cucian Masuk',
-            'nofak' => $kode_otomatis,
-            'konsumen' => $konsumen,
-        ];
-        return view('cucianmasuk/formtambah', $data);
-    }
-
-    public function getJenis()
-    {
-
-        return view('cucianmasuk/getjenis');
-    }
-
-    public function viewGetJenis()
-    {
-        if ($this->request->isAJAX()) {
-            $db = db_connect();
-            $jeniscucian = $db->table('jeniscucian')
-                ->select('kdjeniscucian, jenis, harga');
-            return DataTable::of($jeniscucian)
-                ->add('action', function ($row) {
-                    $button1 = '<button type="button" class="btn btn-primary btn-pilihobat"  data-kdjeniscucian="' . $row->kdjeniscucian . '" data-jenis="' . esc($row->jenis) . '" data-harga="' . $row->harga . '">
-                                Pilih
-                            </button>';
-                    return $button1;
-                }, 'last')
-                ->addNumbering()
-                ->toJson();
+        
+        $debug_date = $this->request->getGet('debug_date');
+        
+        if (!empty($debug_date) && ENVIRONMENT !== 'production') {
+            $today = date('Ymd', strtotime($debug_date));
+        } else {
+            $today = date('Ymd');
         }
-    }
-
-
-    public function getSatuan()
-    {
-
-        return view('cucianmasuk/getsatuan');
-    }
-
-    public function viewGetSatuan()
-    {
-        if ($this->request->isAJAX()) {
-            $db = db_connect();
-            $satuan = $db->table('satuan')
-                ->select('kdsatuan, namasatuan, harga');
-            return DataTable::of($satuan)
-                ->add('action', function ($row) {
-                    $button1 = '<button type="button" class="btn btn-primary btn-pilihsatuan"  data-kdsatuan="' . $row->kdsatuan . '" data-namasatuan="' . esc($row->namasatuan) . '" data-harga="' . $row->harga . '">
-                                Pilih
-                            </button>';
-                    return $button1;
-                }, 'last')
-                ->addNumbering()
-                ->toJson();
-        }
-    }
-
-    public function viewTemp()
-    {
-        if ($this->request->isAJAX()) {
-            $db = db_connect();
-            $produk = $db->table('temp')->select('id, jeniscucian.jenis, satuan.namasatuan, temp.berat, temp.total')
-                ->join('jeniscucian', 'jeniscucian.kdjeniscucian = temp.kdjeniscucian', 'left')
-                ->join('satuan', 'satuan.kdsatuan = temp.kdsatuan', 'left');
-            return DataTable::of($produk)
-                ->add('action', function ($row) {
-                    return
-                        '<a href="#" class="btn btn-danger btn-sm btn-delete" data-id="' . $row->id . '" data-toggle="tooltip" title="Hapus Data"><i class="fas fa-trash"></i></a>';
-                }, 'last')
-                ->addNumbering()
-                ->format('jenis', function ($value, $meta) {
-                    return $value ?: '0';
-                })
-                ->format('namasatuan', function ($value, $meta) {
-                    return $value ?: '0';
-                })
-                ->hide('id')
-                ->toJson();
-        }
-    }
-
-    public function addTemp()
-    {
-        if ($this->request->isAJAX()) {
-            $kdjeniscucian = $this->request->getPost('kdjeniscucian');
-            $kdsatuan = $this->request->getPost('kdsatuan');
-            $berat = $this->request->getPost('berat');
-            $total = $this->request->getPost('total');
-
-            $rules = [
-                'berat' => [
-                    'label' => 'Berat',
-                    'rules' => 'required',
-                    'errors' => [
-                        'required' => '{field} tidak boleh kosong',
-                    ]
-                ],
-                'total' => [
-                    'label' => 'Total',
-                    'rules' => 'required',
-                    'errors' => [
-                        'required' => '{field} tidak boleh kosong',
-                    ]
-                ],
-
-            ];
-
-            if (!$this->validate($rules)) {
-                $errors = [];
-                foreach ($rules as $field => $rule) {
-                    $errors["error_$field"] = $this->validator->getError($field);
+        
+        $prefix = "FKP-$today-";
+        
+        $query = $db->query("SELECT idpencucian FROM pencucian WHERE idpencucian LIKE ?", ["$prefix%"]);
+        $results = $query->getResultArray();
+        
+        if (empty($results)) {
+            $nextNo = 1;
+        } else {
+            $numbers = [];
+            foreach ($results as $row) {
+                $num = substr($row['idpencucian'], strlen($prefix));
+                if (is_numeric($num)) {
+                    $numbers[] = (int)$num;
                 }
-
-                $json = [
-                    'error' => $errors
-                ];
-            } else {
-                $db = db_connect();
-                $db->table('temp')->insert([
-                    'kdjeniscucian' => $kdjeniscucian,
-                    'kdsatuan' => $kdsatuan,
-                    'berat' => $berat,
-                    'total' => $total,
-
-                ]);
-
-                $json = [
-                    'sukses' => 'Berhasil Ditambahkan'
-                ];
             }
-            return $this->response->setJSON($json);
+            
+            if (!empty($numbers)) {
+                $nextNo = max($numbers) + 1;
+            } else {
+                $nextNo = 1;
+            }
+        }
+        
+        $next_id = $prefix . str_pad($nextNo, 4, '0', STR_PAD_LEFT);
+        
+        $data = [
+            'next_id' => $next_id,
+            'debug_date' => $debug_date
+        ];
+        return view('pencucian/formtambah', $data);
+    }
+
+    public function getPelanggan()
+    {
+        return view('pencucian/getpelanggan');
+    }
+
+    public function viewGetPelanggan()
+    {
+        if ($this->request->isAJAX()) {
+            $db = db_connect();
+            $pelanggan = $db->table('pelanggan')
+                ->select('idpelanggan, nama as nama_pelanggan, alamat, nohp, platnomor');
+
+            return DataTable::of($pelanggan)
+                ->add('action', function ($row) {
+                    $button1 = '<button type="button" class="btn btn-primary btn-pilihpelanggan" 
+                                data-idpelanggan="' . $row->idpelanggan . '" 
+                                data-nama_pelanggan="' . esc($row->nama_pelanggan) . '"
+                                data-alamat="' . esc($row->alamat) . '"
+                                data-nohp="' . esc($row->nohp) . '"
+                                data-platnomor="' . esc($row->platnomor) . '">Pilih</button>';
+                    return $button1;
+                }, 'last')
+                ->addNumbering()
+                ->toJson();
         }
     }
 
-    public function deleteTemp()
+    public function getPaket()
+    {
+        return view('pencucian/getpaket');
+    }
+
+    public function viewGetPaket()
     {
         if ($this->request->isAJAX()) {
-            $id = $this->request->getPost('id');
-
             $db = db_connect();
-            $db->table('temp')->where('id', $id)->delete();
-            $json = [
-                'sukses' => 'Data berhasil dihapus'
-            ];
+            $paket = $db->table('paket_cucian')
+                ->select('idpaket, namapaket, harga, jenis, keterangan');
 
-
-            return $this->response->setJSON($json);
+            return DataTable::of($paket)
+                ->add('action', function ($row) {
+                    $button1 = '<button type="button" class="btn btn-primary btn-pilihpaket" 
+                                data-idpaket="' . $row->idpaket . '" 
+                                data-namapaket="' . esc($row->namapaket) . '"
+                                data-harga="' . $row->harga . '"
+                                data-jenis="' . esc($row->jenis) . '">Pilih</button>';
+                    return $button1;
+                }, 'last')
+                ->addNumbering()
+                ->edit('harga', function ($row) {
+                    return 'Rp. ' . number_format($row->harga, 0, ',', '.');
+                })
+                ->toJson();
         }
     }
-    public function deleteAllTemp()
+
+    public function getKaryawan()
+    {
+        return view('pencucian/getkaryawan');
+    }
+
+    public function viewGetKaryawan()
     {
         if ($this->request->isAJAX()) {
-
             $db = db_connect();
-            $db->table('temp')->emptyTable();
-            $json = [
-                'sukses' => 'Semua data berhasil dihapus'
-            ];
+            $karyawan = $db->table('karyawan')
+                ->select('idkaryawan, nama as namakaryawan, alamat, nohp');
 
-            return $this->response->setJSON($json);
+            return DataTable::of($karyawan)
+                ->add('action', function ($row) {
+                    $button1 = '<button type="button" class="btn btn-primary btn-pilihkaryawan" 
+                                data-idkaryawan="' . $row->idkaryawan . '" 
+                                data-namakaryawan="' . esc($row->namakaryawan) . '"
+                                data-alamat="' . esc($row->alamat) . '"
+                                data-nohp="' . esc($row->nohp) . '">Pilih</button>';
+                    return $button1;
+                }, 'last')
+                ->addNumbering()
+                ->toJson();
         }
     }
 
     public function save()
     {
         if ($this->request->isAJAX()) {
-            $nofak = $this->request->getPost('nofak');
-            $idkonsumen = $this->request->getPost('idkonsumen');
-            $tglmasuk = $this->request->getPost('tglmasuk');
-            $tglkeluar = $this->request->getPost('tglkeluar');
-            $grandtotal = $this->request->getPost('grandtotal');
-
+            $idpencucian = $this->request->getPost('idpencucian');
+            $idpelanggan = $this->request->getPost('idpelanggan');
+            $idpaket = $this->request->getPost('idpaket');
+            $idkaryawan = $this->request->getPost('idkaryawan');
+            $tgl = date('Y-m-d');
+            $jamdatang = date('H:i:s');
 
             $rules = [
-                'idkonsumen' => [
-                    'label' => 'Nama Konsumen',
+                'idpelanggan' => [
+                    'label' => 'Pelanggan',
                     'rules' => 'required',
                     'errors' => [
                         'required' => '{field} tidak boleh kosong',
                     ]
                 ],
-                'tglmasuk' => [
-                    'label' => 'Tanggal Masuk',
-                    'rules' => 'required|',
-                    'errors' => [
-                        'required' => '{field} tidak boleh kosong',
-                    ]
-                ],
-                'tglkeluar' => [
-                    'label' => 'Estimasi Selesai',
+                'idpaket' => [
+                    'label' => 'Paket',
                     'rules' => 'required',
                     'errors' => [
                         'required' => '{field} tidak boleh kosong',
                     ]
                 ],
-
+                'idkaryawan' => [
+                    'label' => 'Karyawan',
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => '{field} tidak boleh kosong',
+                    ]
+                ],
             ];
 
             if (!$this->validate($rules)) {
@@ -341,34 +286,20 @@ class PencucianController extends BaseController
                     'error' => $errors
                 ];
             } else {
-
-                $model = new ModelCucianMasuk();
-                $model->insert([
-                    'nofak' => $nofak,
-                    'idkonsumen' => $idkonsumen,
-                    'tglmasuk' => $tglmasuk,
-                    'tglkeluar' => $tglkeluar,
-                    'grandtotal' => $grandtotal,
-                    'status' => 1,
+                $db = db_connect();
+                $db->table('pencucian')->insert([
+                    'idpencucian' => $idpencucian,
+                    'idpelanggan' => $idpelanggan,
+                    'idpaket' => $idpaket,
+                    'idkaryawan' => $idkaryawan,
+                    'tgl' => $tgl,
+                    'jamdatang' => $jamdatang,
+                    'status' => 'diproses',
                 ]);
 
-                $db = db_connect();
-                $tempMasuk = $db->table('temp')->get()->getResultArray();
-                foreach ($tempMasuk as $item) {
-                    $model = new ModelDetailCucianMasuk();
-                    $model->insert([
-                        'nofak' => $nofak,
-                        'kdjeniscucian' => $item['kdjeniscucian'],
-                        'kdsatuan' => $item['kdsatuan'],
-                        'berat' => $item['berat'],
-                        'total' => $item['total'],
-                        'statusdetail' => 1,
-                    ]);
-                }
-                $db->table('temp')->emptyTable();
-
                 $json = [
-                    'sukses' => 'Berhasil Ditambahkan'
+                    'sukses' => 'Data Pencucian Berhasil Ditambahkan',
+                    'idpencucian' => $idpencucian
                 ];
             }
             return $this->response->setJSON($json);
@@ -377,16 +308,13 @@ class PencucianController extends BaseController
     public function delete()
     {
         if ($this->request->isAJAX()) {
-            $nofak = $this->request->getPost('nofak');
+            $idpencucian = $this->request->getPost('idpencucian');
 
-
-            $modelDetail = new ModelDetailCucianMasuk();
-            $modelDetail->where('nofak', $nofak)->delete();
-
-            $model = new ModelCucianMasuk();
-            $model->where('nofak', $nofak)->delete();
+            $db = db_connect();
+            $db->table('pencucian')->where('idpencucian', $idpencucian)->delete();
+            
             $json = [
-                'sukses' => 'Data Peminjaman Berhasil Dihapus'
+                'sukses' => 'Data Pencucian Berhasil Dihapus'
             ];
 
             return $this->response->setJSON($json);
@@ -395,84 +323,71 @@ class PencucianController extends BaseController
 
 
 
-    public function formedit($nofak)
+    public function formedit($idpencucian)
     {
         $db = db_connect();
-        $model = new ModelCucianMasuk();
-        $konsumen = $db->table('konsumen')->get()->getResultArray();
-        $cucianmasuk = $model->where('nofak', $nofak)->first();
+        $pencucian = $db->table('pencucian')
+            ->select('pencucian.*, 
+                     pelanggan.nama as nama_pelanggan, 
+                     pelanggan.alamat, 
+                     pelanggan.nohp, 
+                     pelanggan.platnomor,
+                     paket_cucian.namapaket, 
+                     paket_cucian.harga, 
+                     paket_cucian.jenis,
+                     karyawan.nama as nama_karyawan,
+                     karyawan.alamat as alamat_karyawan,
+                     karyawan.nohp as nohp_karyawan')
+            ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan')
+            ->join('paket_cucian', 'paket_cucian.idpaket = pencucian.idpaket')
+            ->join('karyawan', 'karyawan.idkaryawan = pencucian.idkaryawan')
+            ->where('idpencucian', $idpencucian)
+            ->get()->getRowArray();
 
-
-        if (!$cucianmasuk) {
-            return redirect()->back()->with('error', 'Data Cucian Masuk tidak ditemukan');
-        }
-
-        $konsumenData = $db->table('konsumen')->where('idkonsumen', $cucianmasuk['idkonsumen'])->get()->getRowArray();
-        if (!$konsumenData) {
-            return redirect()->back()->with('error', 'Data Konsumen tidak ditemukan');
-        }
-
-        $cekData = $db->table('temp')->where('nofak', $nofak)->countAllResults();
-        if ($cekData == 0) {
-            $detailCucianMasuk = $db->table('detailcucianmasuk')
-                ->select('kdjeniscucian, kdsatuan, berat, total')
-                ->where('nofak', $nofak)
-                ->get();
-
-            foreach ($detailCucianMasuk->getResultArray() as $row) {
-                $db->table('temp')->insert([
-                    'nofak' => $nofak,
-                    'kdjeniscucian' => $row['kdjeniscucian'],
-                    'kdsatuan' => $row['kdsatuan'],
-                    'berat' => $row['berat'],
-                    'total' => $row['total'],
-                ]);
-            }
+        if (!$pencucian) {
+            return redirect()->back()->with('error', 'Data Pencucian tidak ditemukan');
         }
 
         $data = [
-            'cucianmasuk' => $cucianmasuk,
-            'konsumen' => $konsumen,
-            'namaKonsumen' => $konsumenData['nama'],
+            'pencucian' => $pencucian
         ];
 
-        return view('cucianmasuk/formedit', $data);
+        return view('pencucian/formedit', $data);
     }
 
 
-    public function updatedata()
+    public function updatedata($idpencucian = null)
     {
         if ($this->request->isAJAX()) {
-            $nofak = $this->request->getPost('nofak');
-            $idkonsumen = $this->request->getPost('idkonsumen');
-            $tglmasuk = $this->request->getPost('tglmasuk');
-            $tglkeluar = $this->request->getPost('tglkeluar');
-            $grandtotal = $this->request->getPost('grandtotal');
-
+            if (!$idpencucian) {
+                $idpencucian = $this->request->getPost('idpencucian');
+            }
+            $idpelanggan = $this->request->getPost('idpelanggan');
+            $idpaket = $this->request->getPost('idpaket');
+            $idkaryawan = $this->request->getPost('idkaryawan');
 
             $rules = [
-                'idkonsumen' => [
-                    'label' => 'Nama Konsumen',
+                'idpelanggan' => [
+                    'label' => 'Pelanggan',
                     'rules' => 'required',
                     'errors' => [
                         'required' => '{field} tidak boleh kosong',
                     ]
                 ],
-                'tglmasuk' => [
-                    'label' => 'Tanggal Masuk',
-                    'rules' => 'required|',
-                    'errors' => [
-                        'required' => '{field} tidak boleh kosong',
-                    ]
-                ],
-                'tglkeluar' => [
-                    'label' => 'Estimasi Selesai',
+                'idpaket' => [
+                    'label' => 'Paket',
                     'rules' => 'required',
                     'errors' => [
                         'required' => '{field} tidak boleh kosong',
                     ]
                 ],
-
+                'idkaryawan' => [
+                    'label' => 'Karyawan',
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => '{field} tidak boleh kosong',
+                    ]
+                ],
             ];
 
             if (!$this->validate($rules)) {
@@ -484,48 +399,13 @@ class PencucianController extends BaseController
             }
 
             $db = db_connect();
-            $ModelCucianMasuk = new ModelCucianMasuk();
-            $modelDetail = new ModelDetailCucianMasuk();
-            $datacucianmasuk = [
-                'nofak' => $nofak,
-                'idkonsumen' => $idkonsumen,
-                'tglmasuk' => $tglmasuk,
-                'tglkeluar' => $tglkeluar,
-                'grandtotal' => $grandtotal,
-                'status' => 1,
+            $dataPencucian = [
+                'idpelanggan' => $idpelanggan,
+                'idpaket' => $idpaket,
+                'idkaryawan' => $idkaryawan,
             ];
-            $ModelCucianMasuk->update($nofak, $datacucianmasuk);
-            $detailCucianMasuk = $modelDetail->where('nofak', $nofak)->findAll();
-            foreach ($detailCucianMasuk as $itemdetail) {
-                $db->table('detailcucianmasuk')
-                    ->where('nofak', $itemdetail['nofak'])
-                    ->set('total', 'total + ' . $itemdetail['total'], false)
-                    ->set('kdjeniscucian', $itemdetail['kdjeniscucian'])
-                    ->set('kdsatuan', $itemdetail['kdsatuan'])
-                    ->set('berat', $itemdetail['berat'])
-                    ->set('statusdetail', 1)
-                    ->update();
-            }
-            $modelDetail->where('nofak', $nofak)->delete();
-
-
-            $tempMasuk = $db->table('temp')->get()->getResultArray();
-            foreach ($tempMasuk as $item) {
-                $dataDetail = [
-                    'nofak' => $nofak,
-                    'kdjeniscucian' => $item['kdjeniscucian'],
-                    'kdsatuan' => $item['kdsatuan'],
-                    'berat' => $item['berat'],
-                    'total' => $item['total'],
-                ];
-                $modelDetail->insert($dataDetail);
-                $db->table('detailcucianmasuk')
-                    ->where('nofak', $item['nofak'])
-                    ->set('total', 'total - ' . $item['total'], false)
-                    ->update();
-            }
-
-            $db->table('temp')->emptyTable();
+            
+            $db->table('pencucian')->where('idpencucian', $idpencucian)->update($dataPencucian);
 
             return $this->response->setJSON(['sukses' => 'Update data berhasil']);
         }
@@ -534,22 +414,26 @@ class PencucianController extends BaseController
     public function ubahstatus()
     {
         if ($this->request->isAJAX()) {
-            $nofak = $this->request->getPost('nofak');
-            $status = $this->request->getPost('status');
+            $idpencucian = $this->request->getPost('idpencucian');
 
-            $model = new ModelCucianMasuk(); // Ganti dengan model yang sesuai
-            $cucianmasuk = $model->where('nofak', $nofak)->first();
+            $model = new ModelPencucian();
+            $pencucian = $model->where('idpencucian', $idpencucian)->first();
 
-            if ($cucianmasuk) {
-                $statusBaru = ($cucianmasuk['status'] == 1) ? 2 : ($cucianmasuk['status'] == 2 ? 1 : $cucianmasuk['status']);
-                $model->update($nofak, ['status' => $statusBaru]);
+            if ($pencucian) {
+                // Hanya mengubah antara 'diproses' dan 'dijemput' saja
+                if ($pencucian['status'] == 'diproses') {
+                    $statusBaru = 'dijemput';
+                } else {
+                    $statusBaru = 'diproses';
+                }
+                $model->update($idpencucian, ['status' => $statusBaru]);
 
                 $json = [
-                    'sukses' => 'Status Cucian Masuk berhasil diubah'
+                    'sukses' => 'Status Pencucian berhasil diubah'
                 ];
             } else {
                 $json = [
-                    'error' => 'Cucian Masuk tidak ditemukan'
+                    'error' => 'Pencucian tidak ditemukan'
                 ];
             }
 

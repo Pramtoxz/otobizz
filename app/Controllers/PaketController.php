@@ -20,11 +20,18 @@ class PaketController extends BaseController
     {
         $db = db_connect();
         $builder = $db->table('paket_cucian')
-            ->select('idpaket, namapaket, harga, keterangan');
+            ->select('idpaket, namapaket, harga, jenis');
 
         return DataTable::of($builder)
             ->edit('harga', function($row){
                 return 'Rp ' . number_format($row->harga, 0, ',', '.');
+            })
+            ->edit('jenis', function($row){
+                if ($row->jenis == 'motor') {
+                    return '<span class="badge badge-warning">Motor</span>';
+                } else {
+                    return '<span class="badge badge-danger">Mobil</span>';
+                }
             })
             ->add('action', function ($row) {
                 $button1 = '<button type="button" class="btn btn-primary btn-sm btn-detail" data-idpaket="' . $row->idpaket . '" data-toggle="modal" data-target="#detailModal"><i class="fas fa-eye"></i></button>';
@@ -56,6 +63,7 @@ class PaketController extends BaseController
             $namapaket = $this->request->getPost('namapaket');
             $harga = $this->request->getPost('harga');
             $keterangan = $this->request->getPost('keterangan');
+            $jenis = $this->request->getPost('jenis');
             $rules = [
                 'namapaket' => [
                     'label' => 'Nama Paket',
@@ -79,6 +87,13 @@ class PaketController extends BaseController
                         'required' => '{field} tidak boleh kosong',
                     ]
                 ],
+                'jenis' => [
+                    'label' => 'Jenis Paket',
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => '{field} tidak boleh kosong',
+                    ]
+                ],
             ];
 
             if (!$this->validate($rules)) {
@@ -97,6 +112,7 @@ class PaketController extends BaseController
                         'namapaket' => $namapaket,
                         'harga' => $harga,
                         'keterangan' => $keterangan,
+                        'jenis' => $jenis,
                     ]);
 
                     $json = [
@@ -131,7 +147,7 @@ class PaketController extends BaseController
             $namapaket = $this->request->getPost('namapaket');
             $harga = $this->request->getPost('harga');
             $keterangan = $this->request->getPost('keterangan');
-
+            $jenis = $this->request->getPost('jenis');
             $rules = [
                 'namapaket' => [
                     'label' => 'Nama Paket', // Fixed label
@@ -149,6 +165,13 @@ class PaketController extends BaseController
                 ],
                 'keterangan' => [
                     'label' => 'Keterangan Paket',
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => '{field} tidak boleh kosong',
+                    ]
+                ],
+                'jenis' => [
+                    'label' => 'Jenis Paket',
                     'rules' => 'required',
                     'errors' => [
                         'required' => '{field} tidak boleh kosong',
@@ -173,6 +196,7 @@ class PaketController extends BaseController
                 'namapaket' => $namapaket,
                 'harga' => $harga,
                 'keterangan' => $keterangan,
+                'jenis' => $jenis,
             ];
 
             $model->update($idpaket, $dataUpdate);

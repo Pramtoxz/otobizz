@@ -31,6 +31,14 @@
                                     <input type="text" id="harga" name="harga" class="form-control" placeholder="Rp. 0">
                                     <div class="invalid-feedback error_harga"></div>
                                 </div>
+                                <div class="form-group">
+                                    <label for="jenis">Jenis Paket</label>
+                                    <select id="jenis" name="jenis" class="form-control">
+                                        <option value="motor">Motor</option>
+                                        <option value="mobil">Mobil</option>
+                                    </select>
+                                    <div class="invalid-feedback error_jenis"></div>
+                                </div>
                             
                             <div class="col-md-12">
                                 <div class="form-group">
@@ -134,6 +142,13 @@
                         } else {
                             $('#keterangan').removeClass('is-invalid').addClass('is-valid');
                             $('.error_keterangan').html('');
+                        }
+                        if (err.jenis) {
+                            $('#jenis').addClass('is-invalid');
+                            $('.error_jenis').html(err.jenis);
+                        } else {
+                            $('#jenis').removeClass('is-invalid').addClass('is-valid');
+                            $('.error_jenis').html('');
                         }
                     } else if (response.sukses) {
                         Swal.fire({

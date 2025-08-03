@@ -170,7 +170,7 @@ class PelangganController extends BaseController
         return view('pelanggan/formedit', $data);
     }
 
-    public function updatedata($idpelanggan)
+    public function updatedata()
     {
         if ($this->request->isAJAX()) {
             $idpelanggan = $this->request->getPost('idpelanggan');
@@ -188,7 +188,6 @@ class PelangganController extends BaseController
                         'required' => '{field} tidak boleh kosong',
                     ]
                 ],
-
                 'alamat' => [
                     'label' => 'Alamat',
                     'rules' => 'required',
@@ -230,8 +229,7 @@ class PelangganController extends BaseController
                 ];
             } else {
                 $model = new ModelsPelanggan();
-                $dataPelanggan = $model->where('idpelanggan', $idpelanggan)->first();
-
+                
                 $dataUpdate = [
                     'nama' => $nama,
                     'alamat' => $alamat,
@@ -239,26 +237,20 @@ class PelangganController extends BaseController
                     'jk' => $jk,
                     'platnomor' => $platnomor,
                 ];
+
+                $model->update($idpelanggan, $dataUpdate);
+
+                $json = [
+                    'sukses' => 'Data berhasil diupdate'
+                ];
             }
-            $dataUpdate = [
-                'nama' => $nama,
-                'alamat' => $alamat,
-                'nohp' => $nohp,
-                'jk' => $jk,
-                'platnomor' => $platnomor,
-            ];
 
+            return $this->response->setJSON($json);
+        } else {
+            return $this->response->setJSON([
+                'error' => 'Akses tidak valid'
+            ]);
         }
-
-        $model->update($idpelanggan, $dataUpdate);
-
-
-
-        $json = [
-            'sukses' => 'Data berhasil diupdate'
-        ];
-
-        return $this->response->setJSON($json);
     }
 
 

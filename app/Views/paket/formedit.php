@@ -30,6 +30,14 @@
                             <div class="invalid-feedback error_harga"></div>
                         </div> 
                         <div class="form-group">
+                            <label for="jenis">Jenis Paket</label>
+                            <select id="jenis" name="jenis" class="form-control">
+                                <option value="motor" <?= $paket['jenis'] == 'motor' ? 'selected' : '' ?>>Motor</option>
+                                <option value="mobil" <?= $paket['jenis'] == 'mobil' ? 'selected' : '' ?>>Mobil</option>
+                            </select>
+                            <div class="invalid-feedback error_jenis"></div>
+                        </div>
+                        <div class="form-group">
                             <label for="keterangan">Keterangan</label>
                             <textarea type="text" id="keterangan" name="keterangan" class="form-control"><?= isset($paket['keterangan']) ? $paket['keterangan'] : '' ?></textarea>
                             <div class="invalid-feedback error_keterangan"></div>
@@ -101,6 +109,13 @@
                         } else {
                             $('#keterangan').removeClass('is-invalid').addClass('is-valid');
                             $('.error_keterangan').html('');
+                        }
+                        if (err.error_jenis) {
+                            $('#jenis').addClass('is-invalid').removeClass('is-valid');
+                            $('.error_jenis').html(err.error_jenis);
+                        } else {
+                            $('#jenis').removeClass('is-invalid').addClass('is-valid');
+                            $('.error_jenis').html('');
                         }
                     }
 
