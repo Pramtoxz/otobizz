@@ -43,7 +43,7 @@
                 <div class="flex items-center">
                     <img src="<?= base_url('assets/img/otobizz.png') ?>" alt="Logo" class="h-10 w-auto">
                     <span class="ml-3 text-xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
-                        Oto Bizz
+                        Oto Bizz Cucian Salju Padang
                     </span>
                 </div>
                 <div class="hidden md:block">
@@ -134,8 +134,8 @@
                 <!-- Hero Image -->
                 <div class="relative">
                     <div class="relative z-10">
-                        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
-                             alt="Car Wash" 
+                        <img src="https://images.squarespace-cdn.com/content/v1/59208916d1758e2fd5c171c1/1638049418922-ITGKWOVR81JZACHNWDAE/WashingCar.jpeg?format=2500w"                             
+                        alt="Car Wash" 
                              class="w-full h-96 object-cover rounded-3xl shadow-2xl">
                     </div>
                     <div class="absolute -top-4 -right-4 w-full h-full bg-gradient-to-br from-yellow-400 to-orange-500 rounded-3xl blur-lg opacity-30"></div>
@@ -255,10 +255,6 @@
                         <p class="text-gray-600 mb-8 leading-relaxed">
                             <?= $item['keterangan'] ?>
                         </p>
-                        
-                        <button class="w-full bg-gradient-to-r from-primary to-primary-light text-white py-4 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 group-hover:scale-105">
-                            Pilih Paket
-                        </button>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -336,7 +332,7 @@
                             </div>
                             <div>
                                 <h4 class="font-semibold">Alamat</h4>
-                                <p class="text-gray-400">Jl. Raya Padang No. 123, Padang, Sumatera Barat</p>
+                                <p class="text-gray-400">Jl. Rimbo Kaluang, Gor Hj. Agus Salim, Kota Padang, Sumatera Barat</p>
                             </div>
                         </div>
                         
@@ -363,17 +359,28 @@
                 </div>
                 
                 <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-8">
-                    <img src="https://images.unsplash.com/photo-1521791055366-0d553872125f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
-                         alt="Car Wash Location" 
-                         class="w-full h-64 object-cover rounded-xl mb-6">
+                    <div class="w-full h-64 rounded-xl mb-6 overflow-hidden">
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15938.964479836356!2d100.3581622!3d-0.9345831!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2fd4b8e2e2c7e3e3%3A0x2b2e2b2e2b2e2b2e!2sGor%20Hj.%20Agus%20Salim%2C%20Padang%2C%20Sumatera%20Barat!5e0!3m2!1sid!2sid!4v1718000000000!5m2!1sid!2sid"
+                            width="100%"
+                            height="100%"
+                            style="border:0;"
+                            allowfullscreen=""
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"
+                            title="Lokasi Oto Bizz Cucian Salju"
+                        ></iframe>
+                    </div>
                     
                     <div class="text-center">
                         <h3 class="text-xl font-semibold mb-4">Kunjungi Lokasi Kami</h3>
                         <p class="text-gray-400 mb-6">Nikmati layanan cuci terbaik dengan fasilitas modern dan nyaman</p>
-                        <button class="bg-gradient-to-r from-primary to-primary-light text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300">
+                        <a href="https://maps.app.goo.gl/foFNR5XGSr5bhycS8" 
+                           target="_blank"
+                           class="inline-block bg-gradient-to-r from-primary to-primary-light text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300">
                             <i class="fas fa-directions mr-2"></i>
                             Lihat di Maps
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>

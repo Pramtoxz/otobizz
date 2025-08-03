@@ -70,40 +70,39 @@
         }
     </style>
 </head>
-<body class="gradient-bg min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+<body class="gradient-bg h-screen flex items-center justify-center p-4 relative overflow-hidden">
     <!-- Floating Background Elements -->
-    <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute top-20 left-10 w-32 h-32 bg-white/10 rounded-full animate-float"></div>
-        <div class="absolute top-40 right-20 w-24 h-24 bg-white/5 rounded-full animate-float" style="animation-delay: 1s;"></div>
-        <div class="absolute bottom-40 left-20 w-40 h-40 bg-white/10 rounded-full animate-float" style="animation-delay: 2s;"></div>
-        <div class="absolute bottom-20 right-10 w-20 h-20 bg-white/5 rounded-full animate-float" style="animation-delay: 0.5s;"></div>
-        <div class="absolute top-60 left-1/2 w-16 h-16 bg-white/10 rounded-full animate-float" style="animation-delay: 1.5s;"></div>
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+        <div class="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full animate-float"></div>
+        <div class="absolute top-1/4 right-20 w-16 h-16 bg-white/5 rounded-full animate-float" style="animation-delay: 1s;"></div>
+        <div class="absolute bottom-1/4 left-20 w-24 h-24 bg-white/10 rounded-full animate-float" style="animation-delay: 2s;"></div>
+        <div class="absolute bottom-10 right-10 w-16 h-16 bg-white/5 rounded-full animate-float" style="animation-delay: 0.5s;"></div>
     </div>
 
-    <div class="w-full max-w-md relative z-10">
+    <div class="w-full max-w-md relative z-10 my-8">
         <!-- Main Card -->
-        <div class="glass-effect rounded-3xl overflow-hidden animate-slide-up shadow-2xl">
+        <div class="glass-effect rounded-3xl overflow-hidden animate-slide-up shadow-2xl max-h-[90vh] overflow-y-auto">
             <!-- Header with Oto Bizz Branding -->
-            <div class="bg-gradient-to-r from-primary-500 to-primary-700 p-8 text-white text-center relative overflow-hidden">
+            <div class="bg-gradient-to-r from-primary-500 to-primary-700 p-6 text-white text-center relative overflow-hidden">
                 <div class="absolute inset-0 bg-white/10"></div>
                 <div class="relative z-10">
-                    <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
+                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3 animate-pulse-glow">
                         <img src="<?= base_url('assets/img/otobizz.png') ?>" alt="Logo" class="h-full w-auto">
                     </div>
-                    <h1 class="text-3xl font-bold mb-2">Oto Bizz</h1>
-                    <h2 class="text-lg font-medium mb-1">Cucian Salju Padang</h2>
-                    <p class="text-purple-100 text-sm">Selamat datang kembali</p>
+                    <h1 class="text-2xl font-bold mb-1">Oto Bizz</h1>
+                    <h2 class="text-base font-medium mb-1">Cucian Salju Padang</h2>
+                    <p class="text-purple-100 text-xs">Selamat datang kembali</p>
                 </div>
             </div>
 
             <!-- Login Form -->
-            <div class="p-8">
-                <div class="text-center mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Masuk ke Akun Anda</h2>
-                    <p class="text-gray-600">Silakan login untuk melanjutkan</p>
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">Masuk ke Akun Anda</h2>
+                    <p class="text-gray-600 text-sm">Silakan login untuk melanjutkan</p>
                 </div>
 
-                <form id="formAuthentication" class="space-y-6">
+                <form id="formAuthentication" class="space-y-4">
                     <!-- Alert Messages -->
                     <?php if(session()->getFlashdata('error')): ?>
                     <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl mb-4 animate-fade-in" role="alert">
@@ -199,7 +198,7 @@
                 </form>
 
                 <!-- Back to Home -->
-                <div class="mt-8 text-center">
+                <div class="mt-6 text-center">
                     <a href="<?= site_url('/') ?>" class="text-gray-500 hover:text-primary-500 transition duration-300 text-sm">
                         <i class="fas fa-arrow-left mr-2"></i>
                         Kembali ke Beranda

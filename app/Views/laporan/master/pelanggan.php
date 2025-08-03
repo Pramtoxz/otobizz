@@ -323,7 +323,7 @@
                         <img src="<?= base_url() ?>/assets/img/otobizz.png" alt="Logo Oto Bizz" class="print-logo">
                         <div class="print-company-info">
                             <h1>OTO BIZZ CUCIAN SALJU PADANG</h1>
-                            <p>Kota Padang, Sumatera Barat</p>
+                            <p>Jl. Rimbo Kaluang, Gor Hj. Agus Salim, Kota Padang, Sumatera Barat</p>
                         </div>
                     </div>
                     <hr class="print-divider">
@@ -345,7 +345,11 @@
                     <?php $tanggal = date('d F Y'); ?>
                     <div class="print-signature">
                         <p>Padang, <?= $tanggal ?></p>
-                        <p class="signature-space">OTO BIZZ CUCIAN SALJU PADANG</p>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <p class="signature-space">Pimpinan</p>
                     </div>
                 </div>
             </div>
