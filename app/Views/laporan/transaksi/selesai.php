@@ -461,10 +461,10 @@ select.form-control {
 <div class="col-md-12">
     <div class="card modern-card">
         <div class="card-header modern-card-header">
-            <h3 class="modern-card-title">
-                <i class="fas fa-chart-line"></i>
-                Laporan Transaksi Pencucian
-            </h3>
+                            <h3 class="modern-card-title">
+                    <i class="fas fa-check-circle"></i>
+                    Laporan Transaksi Selesai
+                </h3>
         </div>
         
         <div class="card-body modern-card-body">
@@ -591,11 +591,11 @@ select.form-control {
                         </div>
                     </div>
                     <hr class="print-divider">
-                    <div class="print-title">Laporan Transaksi Pencucian</div>
+                    <div class="print-title">Laporan Transaksi Selesai</div>
                 </div>
                 
                 <!-- Table Container -->
-                <div class="tabelpencucian">
+                <div class="tabelSelesai">
                     <div class="loading-container">
                         <div class="loading-spinner"></div>
                         <h5>Menunggu Data Laporan</h5>
@@ -631,21 +631,21 @@ select.form-control {
 
     function showWelcomeMessage() {
         // Optional welcome message
-        const $container = $('.tabelpencucian');
+        const $container = $('.tabelSelesai');
         $container.html(`
             <div class="loading-container">
-                <div style="text-align: center; color: #6F42C1;">
-                    <i class="fas fa-chart-line" style="font-size: 48px; margin-bottom: 20px; opacity: 0.7;"></i>
-                    <h5>Selamat Datang di Laporan Pencucian</h5>
-                    <p class="text-muted">Klik tombol "Tampilkan Semua Data" atau gunakan filter untuk memuat data pencucian</p>
-                </div>
+                                            <div style="text-align: center; color: #6F42C1;">
+                                <i class="fas fa-check-circle" style="font-size: 48px; margin-bottom: 20px; opacity: 0.7;"></i>
+                                <h5>Selamat Datang di Laporan Transaksi Selesai</h5>
+                                <p class="text-muted">Klik tombol "Tampilkan Semua Data" atau gunakan filter untuk memuat data transaksi yang sudah selesai</p>
+                            </div>
             </div>
         `);
     }
 
     function ViewLaporanSemua() {
         const $btn = $('.btn-view');
-        const $container = $('.tabelpencucian');
+        const $container = $('.tabelSelesai');
         const originalBtnText = $btn.html();
         
         // Show loading state
@@ -654,14 +654,14 @@ select.form-control {
         $container.html(`
             <div class="loading-container">
                 <div class="loading-spinner"></div>
-                <h5>Memuat Data Pencucian</h5>
+                <h5>Memuat Data Transaksi Selesai</h5>
                 <p class="text-muted">Sedang mengambil data dari server...</p>
             </div>
         `);
 
         $.ajax({
             type: "GET",
-            url: "<?= base_url('laporan-transaksi/pencucian/view') ?>",
+            url: "<?= base_url('laporan-transaksi/selesai/view') ?>",
             dataType: "JSON",
             timeout: 30000, // 30 second timeout
             success: function(response) {
@@ -674,8 +674,8 @@ select.form-control {
                         $(this).html(response.data).fadeIn(300);
                     });
                     
-                    // Show success notification
-                    showNotification('success', 'Data Berhasil Dimuat', 'Data pencucian telah berhasil ditampilkan');
+                                    // Show success notification
+                showNotification('success', 'Data Berhasil Dimuat', 'Data transaksi selesai telah berhasil ditampilkan');
                 } else {
                     // Handle empty data
                     $container.html(`
@@ -685,7 +685,7 @@ select.form-control {
                             <p class="text-muted">Belum ada data pencucian yang tersedia</p>
                         </div>
                     `);
-                    showNotification('info', 'Data Kosong', 'Belum ada data pencucian yang tersedia');
+                    showNotification('info', 'Data Kosong', 'Belum ada data transaksi selesai yang tersedia');
                 }
             },
             error: function(xhr, status, error) {
@@ -739,7 +739,7 @@ select.form-control {
         }
 
         const $btn = $('.btn-filter').eq(0);
-        const $container = $('.tabelpencucian');
+        const $container = $('.tabelSelesai');
         const originalBtnText = $btn.html();
         
         // Show loading state
@@ -755,7 +755,7 @@ select.form-control {
 
         $.ajax({
             type: "POST",
-            url: "<?= base_url('laporan-transaksi/pencucian/viewtanggal') ?>",
+            url: "<?= base_url('laporan-transaksi/selesai/viewtanggal') ?>",
             data: {
                 tglmulai: tglmulai,
                 tglakhir: tglakhir,
@@ -770,13 +770,13 @@ select.form-control {
                     $container.fadeOut(300, function() {
                         $(this).html(response.data).fadeIn(300);
                     });
-                    showNotification('success', 'Data Berhasil Dimuat', `Data pencucian periode ${formatDate(tglmulai)} - ${formatDate(tglakhir)} berhasil ditampilkan`);
+                    showNotification('success', 'Data Berhasil Dimuat', `Data transaksi selesai periode ${formatDate(tglmulai)} - ${formatDate(tglakhir)} berhasil ditampilkan`);
                 } else {
                     $container.html(`
                         <div class="empty-state">
                             <i class="fas fa-calendar-times"></i>
                             <h5>Tidak Ada Data</h5>
-                            <p class="text-muted">Tidak ada data pencucian untuk periode ${formatDate(tglmulai)} - ${formatDate(tglakhir)}</p>
+                            <p class="text-muted">Tidak ada data transaksi selesai untuk periode ${formatDate(tglmulai)} - ${formatDate(tglakhir)}</p>
                         </div>
                     `);
                     showNotification('info', 'Data Kosong', 'Tidak ada data untuk periode yang dipilih');
@@ -808,7 +808,7 @@ select.form-control {
         }
 
         const $btn = $('.btn-filter').eq(1);
-        const $container = $('.tabelpencucian');
+        const $container = $('.tabelSelesai');
         const originalBtnText = $btn.html();
         
         // Show loading state
@@ -827,7 +827,7 @@ select.form-control {
 
         $.ajax({
             type: "POST",
-            url: "<?= base_url('laporan-transaksi/pencucian/viewbulan') ?>",
+            url: "<?= base_url('laporan-transaksi/selesai/viewbulan') ?>",
             data: {
                 bulan: bulan,
                 tahun: tahun,
@@ -842,13 +842,13 @@ select.form-control {
                     $container.fadeOut(300, function() {
                         $(this).html(response.data).fadeIn(300);
                     });
-                    showNotification('success', 'Data Berhasil Dimuat', `Data pencucian ${bulanNames[bulan]} ${tahun} berhasil ditampilkan`);
+                    showNotification('success', 'Data Berhasil Dimuat', `Data transaksi selesai ${bulanNames[bulan]} ${tahun} berhasil ditampilkan`);
                 } else {
                     $container.html(`
                         <div class="empty-state">
                             <i class="fas fa-calendar-times"></i>
                             <h5>Tidak Ada Data</h5>
-                            <p class="text-muted">Tidak ada data pencucian untuk ${bulanNames[bulan]} ${tahun}</p>
+                            <p class="text-muted">Tidak ada data transaksi selesai untuk ${bulanNames[bulan]} ${tahun}</p>
                         </div>
                     `);
                     showNotification('info', 'Data Kosong', 'Tidak ada data untuk periode yang dipilih');
@@ -866,7 +866,7 @@ select.form-control {
         const originalBtnText = $printBtn.html();
         
         // Check if data is loaded
-        const hasData = $('.modern-table-container').length > 0 || $('.tabelpencucian table').length > 0;
+        const hasData = $('.modern-table-container').length > 0 || $('.tabelSelesai table').length > 0;
         
         if (!hasData) {
             showNotification('warning', 'Perhatian', 'Silakan tampilkan data terlebih dahulu sebelum mencetak');
@@ -897,7 +897,7 @@ select.form-control {
                     <!DOCTYPE html>
                     <html>
                     <head>
-                        <title>Laporan Pencucian - Oto Bizz</title>
+                        <title>Laporan Transaksi Selesai - Oto Bizz</title>
                         <style>
                             body { 
                                 font-family: 'Times New Roman', serif; 

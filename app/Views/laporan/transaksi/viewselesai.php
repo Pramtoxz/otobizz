@@ -13,7 +13,7 @@
 
 .modern-table {
     width: 100%;
-    min-width: 900px;
+    min-width: 700px;
     margin-bottom: 0;
     border-collapse: separate;
     border-spacing: 0;
@@ -134,48 +134,70 @@
 .col-paket {
     font-weight: 600;
     color: #27ae60;
-    text-align: center !important;
+    text-align: left !important;
     width: 150px;
     padding: 15px 12px !important;
 }
 
-.col-status {
+.col-price {
+    font-family: 'Courier New', monospace;
     font-weight: 600;
+    color: #e74c3c;
     text-align: center !important;
-    width: 120px;
+    width: 140px;
     padding: 15px 12px !important;
 }
 
-.badge {
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 11px;
+/* Footer Total Styles */
+.total-row {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    border-top: 3px solid #6F42C1 !important;
+    color: #000 !important;
+    font-weight: 700 !important;
+}
+
+.total-row td {
+    color: #000 !important;
+    font-weight: 700 !important;
+    font-size: 16px !important;
+    padding: 20px 12px !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+.total-row .total-empty {
+    background: transparent !important;
+    border: none !important;
+    padding: 20px 12px !important;
+}
+
+.total-row .total-final {
+    text-align: center !important;
+    color: #000 !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    padding: 20px 12px !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+.total-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.total-label-text {
+    font-size: 14px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    color: #000;
 }
 
-.badge-warning {
-    background-color: #ffc107;
-    color: #856404;
+.total-amount-text {
+    font-family: 'Courier New', monospace;
+    font-size: 18px !important;
+    font-weight: 900 !important;
+    color: #6F42C1 !important;
 }
-
-.badge-primary {
-    background-color: #007bff;
-    color: white;
-}
-
-.badge-success {
-    background-color: #28a745;
-    color: white;
-}
-
-.badge-secondary {
-    background-color: #6c757d;
-    color: white;
-}
-
-
 
 /* Table Stats */
 .table-stats {
@@ -224,7 +246,7 @@
     .modern-table {
         font-size: 11px;
         table-layout: auto;
-        min-width: 700px;
+        min-width: 500px;
     }
     
     .modern-table thead th,
@@ -243,9 +265,9 @@
         font-size: 10px;
     }
     
-    .col-status {
+    .col-price {
         width: auto;
-        min-width: 80px;
+        min-width: 90px;
         font-size: 10px;
     }
     
@@ -264,7 +286,7 @@
     
     .modern-table {
         font-size: 11px;
-        min-width: 600px;
+        min-width: 450px;
     }
     
     .modern-table thead th,
@@ -347,7 +369,41 @@
         box-shadow: none !important;
     }
     
-
+    .total-row {
+        background: #f8f9fa !important;
+        color: #000 !important;
+        border-top: 2px solid #000 !important;
+    }
+    
+    .total-row td {
+        color: #000 !important;
+        border: 1px solid #000 !important;
+    }
+    
+    .total-row .total-empty {
+        border: none !important;
+        background: transparent !important;
+    }
+    
+    .total-row .total-final {
+        text-align: center !important;
+        font-weight: bold !important;
+        border: 1px solid #000 !important;
+    }
+    
+    .total-container {
+        display: block;
+    }
+    
+    .total-label-text {
+        display: block;
+        margin-bottom: 3px;
+    }
+    
+    .total-amount-text {
+        color: #000 !important;
+        font-weight: bold !important;
+    }
     
     .table-stats {
         background: white !important;
@@ -356,11 +412,11 @@
 }
 </style>
 
-<?php if (empty($pencucian)): ?>
+<?php if (empty($selesai)): ?>
     <div class="empty-state">
         <i class="fas fa-car-wash"></i>
-        <h5>Tidak Ada Data Pencucian</h5>
-        <p class="text-muted">Belum ada data transaksi pencucian yang terdaftar dalam sistem untuk periode yang dipilih.</p>
+        <h5>Tidak Ada Data Transaksi Selesai</h5>
+        <p class="text-muted">Belum ada data transaksi selesai yang terdaftar dalam sistem untuk periode yang dipilih.</p>
     </div>
 <?php else: ?>
     <!-- Filter Information -->
@@ -387,7 +443,7 @@
     <div class="filter-info">
         <p>
             <i class="fas fa-list mr-2"></i>
-            <strong>Periode:</strong> Semua Data Pencucian
+            <strong>Periode:</strong> Semua Data Transaksi Selesai
         </p>
     </div>
     <?php endif; ?>
@@ -397,51 +453,55 @@
             <thead>
                 <tr>
                     <th style="width: 60px;">No</th>
+                    <th style="width: 120px;">ID Selesai</th>
                     <th style="width: 120px;">ID Pencucian</th>
                     <th style="width: 120px;">Plat Nomor</th>
-                    <th style="width: 150px;">Pelanggan</th>
-                    <th style="width: 150px;">Karyawan</th>
-                    <th style="width: 120px;">Tanggal</th>
-                    <th style="width: 150px;">Paket Cucian</th>
-                    <th style="width: 120px;">Status</th>
+                    <th style="width: 200px;">Nama Pelanggan</th>
+                    <th style="width: 140px;">Total Bayar</th>
                 </tr>
             </thead>
             <tbody>
                 <?php 
                 $no = 1;
+                $totalBayar = 0;
                 
-                foreach ($pencucian as $row): 
+                foreach ($selesai as $row): 
+                    $totalBayar += $row['totalbayar'];
                 ?>
                 <tr>
                     <td class="col-no"><?= $no++ ?></td>
+                    <td class="col-id"><?= esc($row['idselesai']) ?></td>
                     <td class="col-id"><?= esc($row['idpencucian']) ?></td>
                     <td class="col-id"><?= esc($row['platnomor']) ?></td>
                     <td class="col-name"><?= esc($row['nama_pelanggan']) ?></td>
-                    <td class="col-name"><?= esc($row['nama_karyawan']) ?></td>
-                    <td class="col-date"><?= date('d-m-Y', strtotime($row['tglpencucian'])) ?></td>
-                    <td class="col-paket"><?= esc($row['namapaket']) ?></td>
-                    <td class="col-status">
-                        <?php if ($row['status'] == 'diproses'): ?>
-                            <span class="badge badge-warning">Sedang Proses</span>
-                        <?php elseif ($row['status'] == 'dijemput'): ?>
-                            <span class="badge badge-primary">Siap Dijemput</span>
-                        <?php elseif ($row['status'] == 'selesai'): ?>
-                            <span class="badge badge-success">Selesai</span>
-                        <?php else: ?>
-                            <span class="badge badge-secondary"><?= esc(ucfirst($row['status'])) ?></span>
-                        <?php endif; ?>
-                    </td>
+                    <td class="col-price">Rp <?= number_format($row['totalbayar'], 0, ',', '.') ?></td>
                 </tr>
                 <?php endforeach; ?>
                 
-
+                <tr class="total-row">
+                    <td class="total-empty"></td>
+                    <td class="total-empty"></td>
+                    <td class="total-empty"></td>
+                    <td class="total-empty"></td>
+                    <td class="total-empty"></td>
+                    <td class="total-final">
+                        <div class="total-container">
+                            <span class="total-label-text">Total Keseluruhan:</span>
+                            <span class="total-amount-text">Rp <?= number_format($totalBayar, 0, ',', '.') ?></span>
+                        </div>
+                    </td>
+                </tr>
             </tbody>
         </table>
         
         <div class="table-stats">
             <div class="stats-item">
-                <i class="fas fa-car-wash"></i>
-                <span><strong>Total Transaksi:</strong> <?= count($pencucian) ?> pencucian</span>
+                <i class="fas fa-check-circle"></i>
+                <span><strong>Total Transaksi Selesai:</strong> <?= count($selesai) ?> transaksi</span>
+            </div>
+            <div class="stats-item">
+                <i class="fas fa-money-bill-wave"></i>
+                <span><strong>Total Pendapatan:</strong> Rp <?= number_format($totalBayar, 0, ',', '.') ?></span>
             </div>
             <div class="stats-item">
                 <i class="fas fa-calendar"></i>

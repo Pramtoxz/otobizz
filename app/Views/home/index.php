@@ -168,7 +168,7 @@
                         <i class="fas fa-car text-white text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-900 mb-4">Cuci Mobil</h3>
-                    <p class="text-gray-600 mb-6">Layanan cuci mobil lengkap dengan shampo khusus dan perawatan interior</p>
+                    <p class="text-gray-600 mb-6">Layanan cuci mobil lengkap dengan shampo khusus dan pencucian interior</p>
                     <ul class="space-y-2 text-sm text-gray-500">
                         <li><i class="fas fa-check text-green-500 mr-2"></i>Cuci Exterior</li>
                         <li><i class="fas fa-check text-green-500 mr-2"></i>Vacuum Interior</li>
@@ -182,7 +182,7 @@
                         <i class="fas fa-motorcycle text-white text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-900 mb-4">Cuci Motor</h3>
-                    <p class="text-gray-600 mb-6">Layanan cuci motor dengan perawatan khusus untuk semua jenis motor</p>
+                    <p class="text-gray-600 mb-6">Layanan cuci motor dengan pencucian khusus untuk semua jenis motor</p>
                     <ul class="space-y-2 text-sm text-gray-500">
                         <li><i class="fas fa-check text-green-500 mr-2"></i>Cuci Body</li>
                         <li><i class="fas fa-check text-green-500 mr-2"></i>Bersih Mesin</li>
@@ -210,7 +210,7 @@
                         <i class="fas fa-tools text-white text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-900 mb-4">Detailing</h3>
-                    <p class="text-gray-600 mb-6">Perawatan menyeluruh untuk kendaraan premium dengan detail sempurna</p>
+                    <p class="text-gray-600 mb-6">pencucian menyeluruh untuk kendaraan premium dengan detail sempurna</p>
                     <ul class="space-y-2 text-sm text-gray-500">
                         <li><i class="fas fa-check text-green-500 mr-2"></i>Full Detailing</li>
                         <li><i class="fas fa-check text-green-500 mr-2"></i>Engine Bay</li>

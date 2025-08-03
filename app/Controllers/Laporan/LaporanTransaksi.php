@@ -398,130 +398,252 @@ class LaporanTransaksi extends BaseController
         echo json_encode($response);
     }
 
+    // Laporan Transaksi Pencucian (tanpa informasi harga)
     public function LaporanPencucian()
     {
-        $data['title'] = 'Laporan Transaksi Pencucian';
-        return view('laporan/transaksi/pencucian', $data);
+        return view('laporan/transaksi/pencucian');
     }
 
     public function viewallLaporanPencucian()
     {
-        $db = db_connect();
-        
-        // Query untuk mengambil semua data pencucian dengan join ke tabel terkait (sesuai dengan PencucianController)
-        $pencucian = $db->table('pencucian')
-            ->select('
-                pencucian.idpencucian,
-                pencucian.tgl as tglpencucian,
-                pencucian.jamdatang,
-                pencucian.status,
-                pelanggan.nama as nama_pelanggan,
-                pelanggan.platnomor,
-                karyawan.nama as nama_karyawan,
-                paket_cucian.namapaket,
-                paket_cucian.harga as total,
-                paket_cucian.jenis,
-                1 as qty
-            ')
-            ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan', 'left')
-            ->join('karyawan', 'karyawan.idkaryawan = pencucian.idkaryawan', 'left')
-            ->join('paket_cucian', 'paket_cucian.idpaket = pencucian.idpaket', 'left')
-            ->orderBy('pencucian.idpencucian', 'DESC')
-            ->get()
-            ->getResultArray();
+        if ($this->request->isAJAX()) {
+            $db = db_connect();
             
-        $data = [
-            'perawatan' => $pencucian, // menggunakan nama variable yang sama dengan view
-        ];
-        $response = [
-            'data' => view('laporan/transaksi/viewpencucian', $data),
-        ];
+            // Query untuk mengambil semua data pencucian dengan join ke tabel terkait (tanpa informasi harga)
+            $pencucian = $db->table('pencucian')
+                ->select('
+                    pencucian.idpencucian,
+                    pencucian.tgl as tglpencucian,
+                    pencucian.jamdatang,
+                    pencucian.status,
+                    pelanggan.nama as nama_pelanggan,
+                    pelanggan.platnomor,
+                    karyawan.nama as nama_karyawan,
+                    paket_cucian.namapaket,
+                    paket_cucian.jenis
+                ')
+                ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan', 'left')
+                ->join('karyawan', 'karyawan.idkaryawan = pencucian.idkaryawan', 'left')
+                ->join('paket_cucian', 'paket_cucian.idpaket = pencucian.idpaket', 'left')
+                ->orderBy('pencucian.idpencucian', 'DESC')
+                ->get()
+                ->getResultArray();
 
-        echo json_encode($response);
+            $data = [
+                'pencucian' => $pencucian
+            ];
+
+            $response = [
+                'data' => view('laporan/transaksi/viewpencucian', $data)
+            ];
+
+            return $this->response->setJSON($response);
+        }
     }
 
     public function viewallLaporanPencucianTanggal()
     {
-        $tglmulai = $this->request->getPost('tglmulai');
-        $tglakhir = $this->request->getPost('tglakhir');
-        $db = db_connect();
-        
-        // Query untuk mengambil data pencucian berdasarkan rentang tanggal
-        $pencucian = $db->table('pencucian')
-            ->select('
-                pencucian.idpencucian,
-                pencucian.tgl as tglpencucian,
-                pencucian.jamdatang,
-                pencucian.status,
-                pelanggan.nama as nama_pelanggan,
-                pelanggan.platnomor,
-                karyawan.nama as nama_karyawan,
-                paket_cucian.namapaket,
-                paket_cucian.harga as total,
-                paket_cucian.jenis,
-                1 as qty
-            ')
-            ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan', 'left')
-            ->join('karyawan', 'karyawan.idkaryawan = pencucian.idkaryawan', 'left')
-            ->join('paket_cucian', 'paket_cucian.idpaket = pencucian.idpaket', 'left')
-            ->where('pencucian.tgl >=', $tglmulai)
-            ->where('pencucian.tgl <=', $tglakhir)
-            ->orderBy('pencucian.idpencucian', 'DESC')
-            ->get()
-            ->getResultArray();
-            
-        $data = [
-            'perawatan' => $pencucian, // menggunakan nama variable yang sama dengan view
-            'tglmulai' => $tglmulai,
-            'tglakhir' => $tglakhir,
-        ];
-        $response = [
-            'data' => view('laporan/transaksi/viewpencucian', $data),
-        ];
+        if ($this->request->isAJAX()) {
+            $tglmulai = $this->request->getPost('tglmulai');
+            $tglakhir = $this->request->getPost('tglakhir');
 
-        echo json_encode($response);
+            $db = db_connect();
+            
+            // Query untuk mengambil data pencucian berdasarkan rentang tanggal (tanpa informasi harga)
+            $pencucian = $db->table('pencucian')
+                ->select('
+                    pencucian.idpencucian,
+                    pencucian.tgl as tglpencucian,
+                    pencucian.jamdatang,
+                    pencucian.status,
+                    pelanggan.nama as nama_pelanggan,
+                    pelanggan.platnomor,
+                    karyawan.nama as nama_karyawan,
+                    paket_cucian.namapaket,
+                    paket_cucian.jenis
+                ')
+                ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan', 'left')
+                ->join('karyawan', 'karyawan.idkaryawan = pencucian.idkaryawan', 'left')
+                ->join('paket_cucian', 'paket_cucian.idpaket = pencucian.idpaket', 'left')
+                ->where('pencucian.tgl >=', $tglmulai)
+                ->where('pencucian.tgl <=', $tglakhir)
+                ->orderBy('pencucian.idpencucian', 'DESC')
+                ->get()
+                ->getResultArray();
+
+            $data = [
+                'pencucian' => $pencucian,
+                'tglmulai' => $tglmulai,
+                'tglakhir' => $tglakhir
+            ];
+
+            $response = [
+                'data' => view('laporan/transaksi/viewpencucian', $data)
+            ];
+
+            return $this->response->setJSON($response);
+        }
     }
 
     public function viewallLaporanPencucianBulan()
     {
-        $bulan = $this->request->getPost('bulan');
-        $tahun = $this->request->getPost('tahun');
-        
-        $db = db_connect();
-        
-        // Query untuk mengambil data pencucian berdasarkan bulan dan tahun
-        $pencucian = $db->table('pencucian')
-            ->select('
-                pencucian.idpencucian,
-                pencucian.tgl as tglpencucian,
-                pencucian.jamdatang,
-                pencucian.status,
-                pelanggan.nama as nama_pelanggan,
-                pelanggan.platnomor,
-                karyawan.nama as nama_karyawan,
-                paket_cucian.namapaket,
-                paket_cucian.harga as total,
-                paket_cucian.jenis,
-                1 as qty
-            ')
-            ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan', 'left')
-            ->join('karyawan', 'karyawan.idkaryawan = pencucian.idkaryawan', 'left')
-            ->join('paket_cucian', 'paket_cucian.idpaket = pencucian.idpaket', 'left')
-            ->where('MONTH(pencucian.tgl)', $bulan)
-            ->where('YEAR(pencucian.tgl)', $tahun)
-            ->orderBy('pencucian.idpencucian', 'DESC')
-            ->get()
-            ->getResultArray();
-            
-        $data = [
-            'perawatan' => $pencucian, // menggunakan nama variable yang sama dengan view
-            'bulan' => $bulan,
-            'tahun' => $tahun,
-        ];
-        $response = [
-            'data' => view('laporan/transaksi/viewpencucian', $data),
-        ];
+        if ($this->request->isAJAX()) {
+            $bulan = $this->request->getPost('bulan');
+            $tahun = $this->request->getPost('tahun');
 
-        echo json_encode($response);
+            $db = db_connect();
+            
+            // Query untuk mengambil data pencucian berdasarkan bulan dan tahun (tanpa informasi harga)
+            $pencucian = $db->table('pencucian')
+                ->select('
+                    pencucian.idpencucian,
+                    pencucian.tgl as tglpencucian,
+                    pencucian.jamdatang,
+                    pencucian.status,
+                    pelanggan.nama as nama_pelanggan,
+                    pelanggan.platnomor,
+                    karyawan.nama as nama_karyawan,
+                    paket_cucian.namapaket,
+                    paket_cucian.jenis
+                ')
+                ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan', 'left')
+                ->join('karyawan', 'karyawan.idkaryawan = pencucian.idkaryawan', 'left')
+                ->join('paket_cucian', 'paket_cucian.idpaket = pencucian.idpaket', 'left')
+                ->where('MONTH(pencucian.tgl)', $bulan)
+                ->where('YEAR(pencucian.tgl)', $tahun)
+                ->orderBy('pencucian.idpencucian', 'DESC')
+                ->get()
+                ->getResultArray();
+
+            $data = [
+                'pencucian' => $pencucian,
+                'bulan' => $bulan,
+                'tahun' => $tahun
+            ];
+
+            $response = [
+                'data' => view('laporan/transaksi/viewpencucian', $data)
+            ];
+
+            return $this->response->setJSON($response);
+        }
+    }
+
+    // Laporan Transaksi Selesai (dengan informasi keuangan lengkap)
+    public function LaporanSelesai()
+    {
+        return view('laporan/transaksi/selesai');
+    }
+
+    public function viewallLaporanSelesai()
+    {
+        if ($this->request->isAJAX()) {
+            $db = db_connect();
+            
+            // Query untuk mengambil data kendaraan selesai (field yang diperlukan saja)
+            $selesai = $db->table('kendaraan_selesai')
+                ->select('
+                    kendaraan_selesai.idselesai,
+                    kendaraan_selesai.totalbayar,
+                    pencucian.idpencucian,
+                    pelanggan.nama as nama_pelanggan,
+                    pelanggan.platnomor
+                ')
+                ->join('pencucian', 'pencucian.idpencucian = kendaraan_selesai.idpencucian', 'left')
+                ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan', 'left')
+                ->orderBy('kendaraan_selesai.idselesai', 'DESC')
+                ->get()
+                ->getResultArray();
+
+            $data = [
+                'selesai' => $selesai
+            ];
+
+            $response = [
+                'data' => view('laporan/transaksi/viewselesai', $data)
+            ];
+
+            return $this->response->setJSON($response);
+        }
+    }
+
+    public function viewallLaporanSelesaiTanggal()
+    {
+        if ($this->request->isAJAX()) {
+            $tglmulai = $this->request->getPost('tglmulai');
+            $tglakhir = $this->request->getPost('tglakhir');
+
+            $db = db_connect();
+            
+            // Query untuk mengambil data kendaraan selesai berdasarkan rentang tanggal
+            $selesai = $db->table('kendaraan_selesai')
+                ->select('
+                    kendaraan_selesai.idselesai,
+                    kendaraan_selesai.totalbayar,
+                    pencucian.idpencucian,
+                    pencucian.tgl as tglpencucian,
+                    pelanggan.nama as nama_pelanggan,
+                    pelanggan.platnomor
+                ')
+                ->join('pencucian', 'pencucian.idpencucian = kendaraan_selesai.idpencucian', 'left')
+                ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan', 'left')
+                ->where('pencucian.tgl >=', $tglmulai)
+                ->where('pencucian.tgl <=', $tglakhir)
+                ->orderBy('kendaraan_selesai.idselesai', 'DESC')
+                ->get()
+                ->getResultArray();
+
+            $data = [
+                'selesai' => $selesai,
+                'tglmulai' => $tglmulai,
+                'tglakhir' => $tglakhir
+            ];
+
+            $response = [
+                'data' => view('laporan/transaksi/viewselesai', $data)
+            ];
+
+            return $this->response->setJSON($response);
+        }
+    }
+
+    public function viewallLaporanSelesaiBulan()
+    {
+        if ($this->request->isAJAX()) {
+            $bulan = $this->request->getPost('bulan');
+            $tahun = $this->request->getPost('tahun');
+
+            $db = db_connect();
+            
+            // Query untuk mengambil data kendaraan selesai berdasarkan bulan dan tahun  
+            $selesai = $db->table('kendaraan_selesai')
+                ->select('
+                    kendaraan_selesai.idselesai,
+                    kendaraan_selesai.totalbayar,
+                    pencucian.idpencucian,
+                    pencucian.tgl as tglpencucian,
+                    pelanggan.nama as nama_pelanggan,
+                    pelanggan.platnomor
+                ')
+                ->join('pencucian', 'pencucian.idpencucian = kendaraan_selesai.idpencucian', 'left')
+                ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan', 'left')
+                ->where('MONTH(pencucian.tgl)', $bulan)
+                ->where('YEAR(pencucian.tgl)', $tahun)
+                ->orderBy('kendaraan_selesai.idselesai', 'DESC')
+                ->get()
+                ->getResultArray();
+
+            $data = [
+                'selesai' => $selesai,
+                'bulan' => $bulan,
+                'tahun' => $tahun
+            ];
+
+            $response = [
+                'data' => view('laporan/transaksi/viewselesai', $data)
+            ];
+
+            return $this->response->setJSON($response);
+        }
     }
 }
