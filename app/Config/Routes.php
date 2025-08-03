@@ -127,8 +127,9 @@ $routes->group('laporan-master', ['filter' => ['auth', 'role:admin,pimpinan']], 
 
 $routes->group('laporan-transaksi', ['filter' => ['auth', 'role:admin,pimpinan']], function ($routes) {
     $routes->get('pencucian', 'Laporan\LaporanTransaksi::LaporanPencucian');
-    $routes->post('pencucian/viewallpencuciantanggal', 'Laporan\LaporanTransaksi::viewallLaporanPencucianTanggal');
-    $routes->post('pencucian/viewallpencucianbulan', 'Laporan\LaporanTransaksi::viewallLaporanPencucianBulan');
+    $routes->get('pencucian/view', 'Laporan\LaporanTransaksi::viewallLaporanPencucian');
+    $routes->post('pencucian/viewtanggal', 'Laporan\LaporanTransaksi::viewallLaporanPencucianTanggal');
+    $routes->post('pencucian/viewbulan', 'Laporan\LaporanTransaksi::viewallLaporanPencucianBulan');
 
 });
 
