@@ -169,8 +169,13 @@ class PencucianController extends BaseController
     {
         if ($this->request->isAJAX()) {
             $db = db_connect();
+            $today = date('Y-m-d');
+            
+            // Filter pelanggan yang belum melakukan pencucian hari ini
             $pelanggan = $db->table('pelanggan')
-                ->select('idpelanggan, nama as nama_pelanggan, alamat, nohp, platnomor');
+                ->select('pelanggan.idpelanggan, pelanggan.nama as nama_pelanggan, pelanggan.alamat, pelanggan.nohp, pelanggan.platnomor')
+                ->join('pencucian', 'pencucian.idpelanggan = pelanggan.idpelanggan AND pencucian.tgl = "' . $today . '"', 'left')
+                ->where('pencucian.idpelanggan IS NULL'); // Hanya tampilkan pelanggan yang belum cuci hari ini
 
             return DataTable::of($pelanggan)
                 ->add('action', function ($row) {
