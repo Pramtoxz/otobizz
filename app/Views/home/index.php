@@ -74,7 +74,7 @@
                 <a href="#packages" class="block text-gray-700 hover:text-primary px-3 py-2 rounded-md text-base font-medium">Paket</a>
                 <a href="#tracking" class="block text-gray-700 hover:text-primary px-3 py-2 rounded-md text-base font-medium">Tracking</a>
                 <a href="#contact" class="block text-gray-700 hover:text-primary px-3 py-2 rounded-md text-base font-medium">Kontak</a>
-                <a href="<?= base_url('auth/login') ?>" class="block bg-gradient-to-r from-primary to-primary-light text-white px-3 py-2 rounded-md text-base font-medium">Login</a>
+                <a href="<?= base_url('auth') ?>" class="block bg-gradient-to-r from-primary to-primary-light text-white px-3 py-2 rounded-md text-base font-medium">Login</a>
             </div>
         </div>
     </nav>
