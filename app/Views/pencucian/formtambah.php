@@ -72,11 +72,18 @@
                     <div class="col-sm-6">
                         <div class="form-group">
                             <label for="idkaryawan">ID Karyawan</label>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="autoAssignKaryawan" name="autoAssignKaryawan" checked>
+                                <label class="form-check-label" for="autoAssignKaryawan">
+                                    <i class="fas fa-magic text-primary"></i> Pilih karyawan otomatis
+                                </label>
+                                <small class="form-text text-muted">Sistem akan memilih karyawan yang tersedia secara otomatis</small>
+                            </div>
                             <div class="input-group">
                                 <input type="hidden" id="idkaryawan" name="idkaryawan" class="form-control" readonly>
-                                <input type="text" id="namakaryawan" name="namakaryawan" class="form-control" placeholder="Pilih Karyawan" readonly>
+                                <input type="text" id="namakaryawan" name="namakaryawan" class="form-control" placeholder="Pilih Karyawan" readonly disabled>
                                 <div class="input-group-append">
-                                    <button class="btn btn-info" type="button" id="btnModalCariKaryawan" data-toggle="modal" data-target="#modalcariKaryawan">Cari</button>
+                                    <button class="btn btn-info" type="button" id="btnModalCariKaryawan" data-toggle="modal" data-target="#modalcariKaryawan" disabled>Cari</button>
                                 </div>
                                 <div class="invalid-feedback error_idkaryawan"></div>
                             </div>
@@ -367,9 +374,10 @@
             var idpelanggan = $('#idpelanggan').val();
             var idpaket = $('#idpaket').val();
             var idkaryawan = $('#idkaryawan').val();
+            var autoAssign = $('#autoAssignKaryawan').is(':checked');
             
-            // Jika semua data sudah terisi, tampilkan preview
-            if (idpelanggan && idpaket && idkaryawan) {
+            // Jika semua data sudah terisi (atau auto-assign untuk karyawan), tampilkan preview
+            if (idpelanggan && idpaket && (idkaryawan || autoAssign)) {
                 $('#detailPencucianPreview').slideDown('slow');
                 
                 // Update waktu real-time
@@ -426,7 +434,8 @@
                     idpencucian: $('#idpencucian').val(),
                     idpelanggan: $('#idpelanggan').val(),
                     idpaket: $('#idpaket').val(),
-                    idkaryawan: $('#idkaryawan').val()
+                    idkaryawan: $('#idkaryawan').val(),
+                    autoAssignKaryawan: $('#autoAssignKaryawan').is(':checked') ? 1 : 0
                 },
               
                 dataType: "json",
@@ -638,6 +647,42 @@
                 $('#preview_jam').text(jam);
             }
         }, 1000);
+
+        // Event handler untuk checkbox auto-assign karyawan
+        $('#autoAssignKaryawan').change(function() {
+            if ($(this).is(':checked')) {
+                // Auto-assign mode: disable manual selection
+                $('#namakaryawan').prop('disabled', true).val('').attr('placeholder', 'Sistem akan memilih otomatis');
+                $('#btnModalCariKaryawan').prop('disabled', true);
+                $('#idkaryawan').val('');
+                
+                // Update preview untuk auto-assign
+                $('#preview_idkaryawan').text('Auto');
+                $('#preview_namakaryawan').text('Sistem akan pilih otomatis');
+                $('#preview_alamatkaryawan').text('-');
+                $('#preview_nohpkaryawan').text('-');
+                
+                // Clear manual data
+                $('#alamatkaryawan').val('');
+                $('#nohpkaryawan').val('');
+            } else {
+                // Manual mode: enable manual selection
+                $('#namakaryawan').prop('disabled', false).attr('placeholder', 'Pilih Karyawan');
+                $('#btnModalCariKaryawan').prop('disabled', false);
+                
+                // Reset preview
+                $('#preview_idkaryawan').text('-');
+                $('#preview_namakaryawan').text('-');
+                $('#preview_alamatkaryawan').text('-');
+                $('#preview_nohpkaryawan').text('-');
+            }
+            
+            // Check complete data after toggle
+            checkCompleteData();
+        });
+
+        // Trigger checkbox change on page load untuk set initial state
+        $('#autoAssignKaryawan').trigger('change');
 
     });
 </script>

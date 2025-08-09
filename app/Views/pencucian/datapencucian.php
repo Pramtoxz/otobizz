@@ -137,6 +137,14 @@
                                 });
                                 // Refresh DataTable
                                 $('#tabelCucian').DataTable().ajax.reload();
+                            } else if (response.error) {
+                                // Handle specific error messages from server
+                                Swal.fire({
+                                    title: 'Tidak Dapat Mengubah Status!',
+                                    text: response.error,
+                                    icon: 'warning',
+                                    confirmButtonText: 'OK'
+                                });
                             } else {
                                 Swal.fire({
                                     title: 'Error!',

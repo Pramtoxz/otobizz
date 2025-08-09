@@ -25,6 +25,60 @@ use App\Models\Pencucian as ModelPencucian;
 class PencucianController extends BaseController
 {
 
+    /**
+     * Helper function untuk auto-assign karyawan yang tersedia
+     * @return string|null idkaryawan yang tersedia atau null jika semua sibuk
+     */
+    private function getAvailableKaryawan()
+    {
+        $db = db_connect();
+        
+        // Cari karyawan yang tidak sedang menangani pencucian dengan status 'diproses'
+        $availableKaryawan = $db->table('karyawan')
+            ->select('karyawan.idkaryawan')
+            ->join('pencucian', 'pencucian.idkaryawan = karyawan.idkaryawan AND pencucian.status = "diproses"', 'left')
+            ->where('pencucian.idkaryawan IS NULL')
+            ->orderBy('karyawan.idkaryawan', 'ASC') // FIFO berdasarkan ID karyawan
+            ->limit(1)
+            ->get()
+            ->getRowArray();
+            
+        return $availableKaryawan ? $availableKaryawan['idkaryawan'] : null;
+    }
+
+    /**
+     * Helper function untuk auto-assign dari antrian
+     * @param string $availableKaryawanId
+     * @return bool
+     */
+    private function autoAssignFromQueue($availableKaryawanId)
+    {
+        $db = db_connect();
+        
+        // Cari pencucian yang mengantri (FIFO)
+        $queuedPencucian = $db->table('pencucian')
+            ->select('idpencucian')
+            ->where('status', 'antri')
+            ->orderBy('tgl', 'ASC')
+            ->orderBy('jamdatang', 'ASC')
+            ->limit(1)
+            ->get()
+            ->getRowArray();
+            
+        if ($queuedPencucian) {
+            // Update pencucian dari antri ke diproses dengan karyawan yang tersedia
+            $db->table('pencucian')
+                ->where('idpencucian', $queuedPencucian['idpencucian'])
+                ->update([
+                    'idkaryawan' => $availableKaryawanId,
+                    'status' => 'diproses'
+                ]);
+            return true;
+        }
+        
+        return false;
+    }
+
     public function detail($idpencucian)
     {
         $db = db_connect();
@@ -86,14 +140,20 @@ class PencucianController extends BaseController
                 ->select('pencucian.idpencucian,pencucian.tgl,  pelanggan.nama, pelanggan.platnomor, paket_cucian.namapaket , karyawan.nama as nama_karyawan, pencucian.status')
                 ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan')
                 ->join('paket_cucian', 'paket_cucian.idpaket = pencucian.idpaket')
-                ->join('karyawan', 'karyawan.idkaryawan = pencucian.idkaryawan')
+                ->join('karyawan', 'karyawan.idkaryawan = pencucian.idkaryawan', 'left') // LEFT JOIN untuk handle status antri
                 ->groupBy('idpencucian');
             return DataTable::of($produk)
                 ->add('action', function ($row) {
                     $button1 = '<button type="button" class="btn btn-primary btn-sm btn-detail" data-idpencucian="' . $row->idpencucian . '" ><i class="fas fa-eye"></i></button>';
                     $buttonsGroup = '<div style="display: flex;">' . $button1;
                     if ($row->status != 'selesai') {
-                        $button2 = '<button type="button" class="btn btn-warning btn-sm btn-status" data-idpencucian="' . $row->idpencucian . '" style="margin-left: 5px;"><i class="fas fa-sync-alt"></i></button>';
+                        if ($row->status == 'antri') {
+                            // Untuk status antri, tombol untuk memproses langsung jika ada karyawan available
+                            $button2 = '<button type="button" class="btn btn-info btn-sm btn-status" data-idpencucian="' . $row->idpencucian . '" style="margin-left: 5px;" title="Proses sekarang"><i class="fas fa-play"></i></button>';
+                        } else {
+                            // Tombol toggle status biasa
+                            $button2 = '<button type="button" class="btn btn-warning btn-sm btn-status" data-idpencucian="' . $row->idpencucian . '" style="margin-left: 5px;"><i class="fas fa-sync-alt"></i></button>';
+                        }
                         $button3 = '<button type="button" class="btn btn-secondary btn-sm btn-edit" data-idpencucian="' . $row->idpencucian . '" style="margin-left: 5px;"><i class="fas fa-pencil-alt"></i></button>';
                         $button4 = '<button type="button" class="btn btn-danger btn-sm btn-delete" data-idpencucian="' . $row->idpencucian . '" style="margin-left: 5px;"><i class="fas fa-trash"></i></button>';
                         $buttonsGroup .= $button2 . $button3 . $button4;
@@ -103,8 +163,17 @@ class PencucianController extends BaseController
                 }, 'last')
                 ->addNumbering()
 
+                ->edit('nama_karyawan', function ($row) {
+                    if ($row->status == 'antri') {
+                        return '<span class="text-muted"><i>Menunggu karyawan...</i></span>';
+                    } else {
+                        return $row->nama_karyawan ?: '-';
+                    }
+                })
                 ->edit('status', function ($row) {
-                    if ($row->status == 'diproses') {
+                    if ($row->status == 'antri') {
+                        return '<span class="badge bg-secondary">Mengantri</span>';
+                    } else if ($row->status == 'diproses') {
                         return '<span class="badge bg-warning">Sedang Proses</span>';
                     } else if ($row->status == 'dijemput') {
                         return '<span class="badge bg-primary">Sudah bisa Dijemput</span>';
@@ -169,13 +238,12 @@ class PencucianController extends BaseController
     {
         if ($this->request->isAJAX()) {
             $db = db_connect();
-            $today = date('Y-m-d');
             
-            // Filter pelanggan yang belum melakukan pencucian hari ini
+            // Filter pelanggan yang kendaraannya tidak sedang dalam proses (antri, diproses, dijemput)
             $pelanggan = $db->table('pelanggan')
                 ->select('pelanggan.idpelanggan, pelanggan.nama as nama_pelanggan, pelanggan.alamat, pelanggan.nohp, pelanggan.platnomor')
-                ->join('pencucian', 'pencucian.idpelanggan = pelanggan.idpelanggan AND pencucian.tgl = "' . $today . '"', 'left')
-                ->where('pencucian.idpelanggan IS NULL'); // Hanya tampilkan pelanggan yang belum cuci hari ini
+                ->join('pencucian', 'pencucian.idpelanggan = pelanggan.idpelanggan AND pencucian.status IN ("antri", "diproses", "dijemput")', 'left')
+                ->where('pencucian.idpelanggan IS NULL'); // Hanya tampilkan pelanggan yang kendaraannya tidak sedang dalam proses
 
             return DataTable::of($pelanggan)
                 ->add('action', function ($row) {
@@ -230,8 +298,13 @@ class PencucianController extends BaseController
     {
         if ($this->request->isAJAX()) {
             $db = db_connect();
+            
+            // Filter karyawan yang tidak sedang menangani pencucian dengan status 'diproses'
             $karyawan = $db->table('karyawan')
-                ->select('idkaryawan, nama as namakaryawan, alamat, nohp');
+                ->select('karyawan.idkaryawan, karyawan.nama as namakaryawan, karyawan.alamat, karyawan.nohp')
+                ->join('pencucian', 'pencucian.idkaryawan = karyawan.idkaryawan AND pencucian.status = "diproses"', 'left')
+                ->where('pencucian.idkaryawan IS NULL') // Hanya tampilkan karyawan yang tidak sedang sibuk
+                ->groupBy('karyawan.idkaryawan');
 
             return DataTable::of($karyawan)
                 ->add('action', function ($row) {
@@ -242,6 +315,9 @@ class PencucianController extends BaseController
                                 data-nohp="' . esc($row->nohp) . '">Pilih</button>';
                     return $button1;
                 }, 'last')
+                ->add('status', function ($row) {
+                    return '<span class="badge badge-success">Tersedia</span>';
+                }, 'first')
                 ->addNumbering()
                 ->toJson();
         }
@@ -254,9 +330,11 @@ class PencucianController extends BaseController
             $idpelanggan = $this->request->getPost('idpelanggan');
             $idpaket = $this->request->getPost('idpaket');
             $idkaryawan = $this->request->getPost('idkaryawan');
+            $autoAssign = $this->request->getPost('autoAssignKaryawan') == 1;
             $tgl = date('Y-m-d');
             $jamdatang = date('H:i:s');
 
+            // Validation rules - karyawan tidak wajib jika auto-assign
             $rules = [
                 'idpelanggan' => [
                     'label' => 'Pelanggan',
@@ -271,15 +349,19 @@ class PencucianController extends BaseController
                     'errors' => [
                         'required' => '{field} tidak boleh kosong',
                     ]
-                ],
-                'idkaryawan' => [
+                ]
+            ];
+
+            // Jika tidak auto-assign, karyawan wajib dipilih
+            if (!$autoAssign) {
+                $rules['idkaryawan'] = [
                     'label' => 'Karyawan',
                     'rules' => 'required',
                     'errors' => [
-                        'required' => '{field} tidak boleh kosong',
+                        'required' => '{field} harus dipilih jika tidak menggunakan auto-assign',
                     ]
-                ],
-            ];
+                ];
+            }
 
             if (!$this->validate($rules)) {
                 $errors = [];
@@ -292,19 +374,61 @@ class PencucianController extends BaseController
                 ];
             } else {
                 $db = db_connect();
+                $finalKaryawan = null;
+                $finalStatus = 'diproses';
+
+                if ($autoAssign) {
+                    // Mode auto-assign
+                    $availableKaryawan = $this->getAvailableKaryawan();
+                    
+                    if ($availableKaryawan) {
+                        $finalKaryawan = $availableKaryawan;
+                        $finalStatus = 'diproses';
+                        $message = 'Data Pencucian Berhasil Ditambahkan dan Karyawan Otomatis Dipilih';
+                    } else {
+                        // Semua karyawan sibuk, masuk antrian
+                        $finalKaryawan = null;
+                        $finalStatus = 'antri';
+                        $message = 'Data Pencucian Berhasil Ditambahkan ke Antrian (Semua Karyawan Sedang Sibuk)';
+                    }
+                } else {
+                    // Mode manual selection
+                    // Cek apakah karyawan yang dipilih masih available
+                    $db = db_connect();
+                    $karyawanSibuk = $db->table('pencucian')
+                        ->where('idkaryawan', $idkaryawan)
+                        ->where('status', 'diproses')
+                        ->countAllResults();
+                        
+                    if ($karyawanSibuk > 0) {
+                        $json = [
+                            'error' => [
+                                'error_idkaryawan' => 'Karyawan sedang sibuk menangani pencucian lain. Silakan pilih karyawan lain atau gunakan auto-assign.'
+                            ]
+                        ];
+                        return $this->response->setJSON($json);
+                    }
+                    
+                    $finalKaryawan = $idkaryawan;
+                    $finalStatus = 'diproses';
+                    $message = 'Data Pencucian Berhasil Ditambahkan';
+                }
+
+                // Insert data pencucian
                 $db->table('pencucian')->insert([
                     'idpencucian' => $idpencucian,
                     'idpelanggan' => $idpelanggan,
                     'idpaket' => $idpaket,
-                    'idkaryawan' => $idkaryawan,
+                    'idkaryawan' => $finalKaryawan,
                     'tgl' => $tgl,
                     'jamdatang' => $jamdatang,
-                    'status' => 'diproses',
+                    'status' => $finalStatus,
                 ]);
 
                 $json = [
-                    'sukses' => 'Data Pencucian Berhasil Ditambahkan',
-                    'idpencucian' => $idpencucian
+                    'sukses' => $message,
+                    'idpencucian' => $idpencucian,
+                    'status' => $finalStatus
                 ];
             }
             return $this->response->setJSON($json);
@@ -425,13 +549,48 @@ class PencucianController extends BaseController
             $pencucian = $model->where('idpencucian', $idpencucian)->first();
 
             if ($pencucian) {
-                // Hanya mengubah antara 'diproses' dan 'dijemput' saja
+                $statusBaru = '';
+                $message = 'Status Pencucian berhasil diubah';
+                
+                // Logic perubahan status
                 if ($pencucian['status'] == 'diproses') {
                     $statusBaru = 'dijemput';
-                } else {
+                    
+                    // Ketika karyawan selesai (dari diproses ke dijemput), coba auto-assign dari antrian
+                    if ($pencucian['idkaryawan']) {
+                        $assigned = $this->autoAssignFromQueue($pencucian['idkaryawan']);
+                        if ($assigned) {
+                            $message = 'Status berhasil diubah dan pencucian berikutnya dari antrian telah di-assign otomatis';
+                        }
+                    }
+                } elseif ($pencucian['status'] == 'dijemput') {
                     $statusBaru = 'diproses';
+                } elseif ($pencucian['status'] == 'antri') {
+                    // Dari antri bisa langsung ke diproses jika ada karyawan available
+                    $availableKaryawan = $this->getAvailableKaryawan();
+                    if ($availableKaryawan) {
+                        $statusBaru = 'diproses';
+                        // Update dengan karyawan yang tersedia
+                        $model->update($idpencucian, [
+                            'status' => $statusBaru,
+                            'idkaryawan' => $availableKaryawan
+                        ]);
+                        $message = 'Pencucian berhasil diproses dengan karyawan yang tersedia';
+                    } else {
+                        $json = [
+                            'error' => 'Tidak ada karyawan yang tersedia saat ini'
+                        ];
+                        return $this->response->setJSON($json);
+                    }
+                } else {
+                    // Status lainnya toggle seperti biasa
+                    $statusBaru = ($pencucian['status'] == 'diproses') ? 'dijemput' : 'diproses';
                 }
-                $model->update($idpencucian, ['status' => $statusBaru]);
+
+                // Update status (kecuali sudah di-update di atas untuk kasus antri)
+                if ($pencucian['status'] != 'antri') {
+                    $model->update($idpencucian, ['status' => $statusBaru]);
+                }
 
                 $json = [
                     'sukses' => 'Status Pencucian berhasil diubah'

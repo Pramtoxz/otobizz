@@ -3,6 +3,7 @@
         <thead>
             <tr>
                 <th>No</th>
+                <th>Status</th>
                 <th>ID Karyawan</th>
                 <th>Nama Karyawan</th>
                 <th>Alamat</th>
