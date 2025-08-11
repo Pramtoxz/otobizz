@@ -47,6 +47,25 @@ class PencucianController extends BaseController
     }
 
     /**
+     * Helper function untuk generate nomor antrian harian
+     * @return int nomor antrian berikutnya
+     */
+    private function generateNomorAntrian()
+    {
+        $db = db_connect();
+        $today = date('Y-m-d');
+        
+        // Cari nomor antrian tertinggi hari ini
+        $maxAntrian = $db->table('pencucian')
+            ->select('MAX(nomor_antrian) as max_antrian')
+            ->where('tgl', $today)
+            ->get()
+            ->getRowArray();
+            
+        return ($maxAntrian['max_antrian'] ?? 0) + 1;
+    }
+
+    /**
      * Helper function untuk auto-assign dari antrian
      * @param string $availableKaryawanId
      * @return bool
@@ -137,7 +156,7 @@ class PencucianController extends BaseController
         if ($this->request->isAJAX()) {
             $db = db_connect();
             $produk = $db->table('pencucian')
-                ->select('pencucian.idpencucian,pencucian.tgl,  pelanggan.nama, pelanggan.platnomor, paket_cucian.namapaket , karyawan.nama as nama_karyawan, pencucian.status')
+                ->select('pencucian.idpencucian,pencucian.tgl, pencucian.nomor_antrian, pelanggan.nama, pelanggan.platnomor, paket_cucian.namapaket , karyawan.nama as nama_karyawan, pencucian.status')
                 ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan')
                 ->join('paket_cucian', 'paket_cucian.idpaket = pencucian.idpaket')
                 ->join('karyawan', 'karyawan.idkaryawan = pencucian.idkaryawan', 'left') // LEFT JOIN untuk handle status antri
@@ -146,6 +165,13 @@ class PencucianController extends BaseController
                 ->add('action', function ($row) {
                     $button1 = '<button type="button" class="btn btn-primary btn-sm btn-detail" data-idpencucian="' . $row->idpencucian . '" ><i class="fas fa-eye"></i></button>';
                     $buttonsGroup = '<div style="display: flex;">' . $button1;
+                    
+                    // Tambahkan tombol cetak antrian jika status antri
+                    if ($row->status == 'antri') {
+                        $buttonCetak = '<button type="button" class="btn btn-success btn-sm btn-cetak-antrian" data-idpencucian="' . $row->idpencucian . '" style="margin-left: 5px;" title="Cetak Nomor Antrian"><i class="fas fa-print"></i></button>';
+                        $buttonsGroup .= $buttonCetak;
+                    }
+                    
                     if ($row->status != 'selesai') {
                         if ($row->status == 'antri') {
                             // Untuk status antri, tombol untuk memproses langsung jika ada karyawan available
@@ -170,9 +196,11 @@ class PencucianController extends BaseController
                         return $row->nama_karyawan ?: '-';
                     }
                 })
+                ->hide('nomor_antrian')
                 ->edit('status', function ($row) {
                     if ($row->status == 'antri') {
-                        return '<span class="badge bg-secondary">Mengantri</span>';
+                        $antrianText = $row->nomor_antrian ? "Antrian #{$row->nomor_antrian}" : "Mengantri";
+                        return '<span class="badge bg-secondary">' . $antrianText . '</span>';
                     } else if ($row->status == 'diproses') {
                         return '<span class="badge bg-warning">Sedang Proses</span>';
                     } else if ($row->status == 'dijemput') {
@@ -376,6 +404,7 @@ class PencucianController extends BaseController
                 $db = db_connect();
                 $finalKaryawan = null;
                 $finalStatus = 'diproses';
+                $nomorAntrian = null;
 
                 if ($autoAssign) {
                     // Mode auto-assign
@@ -389,7 +418,8 @@ class PencucianController extends BaseController
                         // Semua karyawan sibuk, masuk antrian
                         $finalKaryawan = null;
                         $finalStatus = 'antri';
-                        $message = 'Data Pencucian Berhasil Ditambahkan ke Antrian (Semua Karyawan Sedang Sibuk)';
+                        $nomorAntrian = $this->generateNomorAntrian();
+                        $message = 'Data Pencucian Berhasil Ditambahkan ke Antrian (Semua Karyawan Sedang Sibuk). Nomor Antrian: ' . $nomorAntrian;
                     }
                 } else {
                     // Mode manual selection
@@ -417,6 +447,7 @@ class PencucianController extends BaseController
                 // Insert data pencucian
                 $db->table('pencucian')->insert([
                     'idpencucian' => $idpencucian,
+                    'nomor_antrian' => $nomorAntrian,
                     'idpelanggan' => $idpelanggan,
                     'idpaket' => $idpaket,
                     'idkaryawan' => $finalKaryawan,
@@ -428,7 +459,8 @@ class PencucianController extends BaseController
                 $json = [
                     'sukses' => $message,
                     'idpencucian' => $idpencucian,
-                    'status' => $finalStatus
+                    'status' => $finalStatus,
+                    'nomor_antrian' => $nomorAntrian
                 ];
             }
             return $this->response->setJSON($json);
@@ -643,5 +675,103 @@ class PencucianController extends BaseController
         }
 
         return view('home/tracking', $data);
+    }
+
+    /**
+     * Fungsi untuk cetak nomor antrian
+     */
+    public function cetakAntrian($idpencucian)
+    {
+        $db = db_connect();
+        
+        // Ambil data pencucian dengan join ke tabel terkait
+        $pencucianQuery = $db
+            ->table('pencucian')
+            ->select('pencucian.*, 
+                     pelanggan.nama as nama_pelanggan, 
+                     pelanggan.alamat, 
+                     pelanggan.nohp, 
+                     pelanggan.platnomor,
+                     paket_cucian.namapaket, 
+                     paket_cucian.harga, 
+                     paket_cucian.jenis')
+            ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan')
+            ->join('paket_cucian', 'paket_cucian.idpaket = pencucian.idpaket')
+            ->where('pencucian.idpencucian', $idpencucian)
+            ->where('pencucian.status', 'antri');
+        
+        $pencucianData = $pencucianQuery->get()->getRowArray();
+
+        if (!$pencucianData) {
+            return redirect()->back()->with('error', 'Data pencucian antrian tidak ditemukan');
+        }
+
+        // Hitung estimasi waktu berdasarkan posisi antrian
+        $antrianSebelum = $db->table('pencucian')
+            ->where('status', 'antri')
+            ->where('nomor_antrian <', $pencucianData['nomor_antrian'])
+            ->where('tgl', $pencucianData['tgl'])
+            ->countAllResults();
+
+        // Estimasi 30 menit per pencucian
+        $estimasiMenit = ($antrianSebelum + 1) * 30;
+        $estimasiWaktu = date('H:i', strtotime($pencucianData['jamdatang'] . " + {$estimasiMenit} minutes"));
+
+        $data = [
+            'pencucian' => $pencucianData,
+            'estimasi_waktu' => $estimasiWaktu,
+            'antrian_sebelum' => $antrianSebelum
+        ];
+
+        return view('pencucian/cetak_antrian', $data);
+    }
+
+    /**
+     * Fungsi untuk modal nomor antrian
+     */
+    public function modalAntrian($idpencucian)
+    {
+        $db = db_connect();
+        
+        // Ambil data pencucian dengan join ke tabel terkait
+        $pencucianQuery = $db
+            ->table('pencucian')
+            ->select('pencucian.*, 
+                     pelanggan.nama as nama_pelanggan, 
+                     pelanggan.alamat, 
+                     pelanggan.nohp, 
+                     pelanggan.platnomor,
+                     paket_cucian.namapaket, 
+                     paket_cucian.harga, 
+                     paket_cucian.jenis')
+            ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan')
+            ->join('paket_cucian', 'paket_cucian.idpaket = pencucian.idpaket')
+            ->where('pencucian.idpencucian', $idpencucian)
+            ->where('pencucian.status', 'antri');
+        
+        $pencucianData = $pencucianQuery->get()->getRowArray();
+
+        if (!$pencucianData) {
+            return '<div class="alert alert-warning">Data pencucian antrian tidak ditemukan</div>';
+        }
+
+        // Hitung estimasi waktu berdasarkan posisi antrian
+        $antrianSebelum = $db->table('pencucian')
+            ->where('status', 'antri')
+            ->where('nomor_antrian <', $pencucianData['nomor_antrian'])
+            ->where('tgl', $pencucianData['tgl'])
+            ->countAllResults();
+
+        // Estimasi 30 menit per pencucian
+        $estimasiMenit = ($antrianSebelum + 1) * 30;
+        $estimasiWaktu = date('H:i', strtotime($pencucianData['jamdatang'] . " + {$estimasiMenit} minutes"));
+
+        $data = [
+            'pencucian' => $pencucianData,
+            'estimasi_waktu' => $estimasiWaktu,
+            'antrian_sebelum' => $antrianSebelum
+        ];
+
+        return view('pencucian/modal_antrian', $data);
     }
 }

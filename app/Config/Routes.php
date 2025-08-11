@@ -77,6 +77,8 @@ $routes->group('pencucian', ['filter' => ['auth', 'role:admin']], function ($rou
     $routes->get('formedit/(:segment)', 'PencucianController::formedit/$1');
     $routes->post('updatedata/(:segment)', 'PencucianController::updatedata/$1');
     $routes->get('detail/(:segment)', 'PencucianController::detail/$1');
+    $routes->get('cetakAntrian/(:segment)', 'PencucianController::cetakAntrian/$1');
+    $routes->get('modalAntrian/(:segment)', 'PencucianController::modalAntrian/$1');
     $routes->get('getpelanggan', 'PencucianController::getPelanggan');
     $routes->get('viewgetpelanggan', 'PencucianController::viewGetPelanggan');
     $routes->get('getpaket', 'PencucianController::getPaket');
