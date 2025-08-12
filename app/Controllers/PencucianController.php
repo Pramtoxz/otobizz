@@ -726,52 +726,5 @@ class PencucianController extends BaseController
         return view('pencucian/cetak_antrian', $data);
     }
 
-    /**
-     * Fungsi untuk modal nomor antrian
-     */
-    public function modalAntrian($idpencucian)
-    {
-        $db = db_connect();
-        
-        // Ambil data pencucian dengan join ke tabel terkait
-        $pencucianQuery = $db
-            ->table('pencucian')
-            ->select('pencucian.*, 
-                     pelanggan.nama as nama_pelanggan, 
-                     pelanggan.alamat, 
-                     pelanggan.nohp, 
-                     pelanggan.platnomor,
-                     paket_cucian.namapaket, 
-                     paket_cucian.harga, 
-                     paket_cucian.jenis')
-            ->join('pelanggan', 'pelanggan.idpelanggan = pencucian.idpelanggan')
-            ->join('paket_cucian', 'paket_cucian.idpaket = pencucian.idpaket')
-            ->where('pencucian.idpencucian', $idpencucian)
-            ->where('pencucian.status', 'antri');
-        
-        $pencucianData = $pencucianQuery->get()->getRowArray();
 
-        if (!$pencucianData) {
-            return '<div class="alert alert-warning">Data pencucian antrian tidak ditemukan</div>';
-        }
-
-        // Hitung estimasi waktu berdasarkan posisi antrian
-        $antrianSebelum = $db->table('pencucian')
-            ->where('status', 'antri')
-            ->where('nomor_antrian <', $pencucianData['nomor_antrian'])
-            ->where('tgl', $pencucianData['tgl'])
-            ->countAllResults();
-
-        // Estimasi 30 menit per pencucian
-        $estimasiMenit = ($antrianSebelum + 1) * 30;
-        $estimasiWaktu = date('H:i', strtotime($pencucianData['jamdatang'] . " + {$estimasiMenit} minutes"));
-
-        $data = [
-            'pencucian' => $pencucianData,
-            'estimasi_waktu' => $estimasiWaktu,
-            'antrian_sebelum' => $antrianSebelum
-        ];
-
-        return view('pencucian/modal_antrian', $data);
-    }
 }

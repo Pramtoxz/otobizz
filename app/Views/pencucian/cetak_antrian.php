@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nomor Antrian - <?= $pencucian['nomor_antrian'] ?></title>
-    <style>
+<?= $this->extend('layout/main') ?>
+<?= $this->section('content') ?>
+
+<style>
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
@@ -19,11 +16,11 @@
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            border: 2px dashed #007bff;
+            border: 2px dashed #6F42C1;
         }
         
         .ticket-header {
-            background: linear-gradient(135deg, #007bff, #0056b3);
+            background: linear-gradient(135deg, #6F42C1,rgb(143, 95, 233));
             color: white;
             padding: 20px;
             text-align: center;
@@ -48,7 +45,7 @@
         .queue-number {
             font-size: 72px;
             font-weight: bold;
-            color: #007bff;
+            color: #6F42C1;
             margin: 20px 0;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
@@ -101,7 +98,7 @@
         .estimation-time {
             font-size: 24px;
             font-weight: bold;
-            color: #007bff;
+            color: #6F42C1;
             margin-bottom: 5px;
         }
         
@@ -135,6 +132,25 @@
             background: #218838;
         }
         
+        .back-button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .back-button:hover {
+            background: #5a6268;
+            color: white;
+            text-decoration: none;
+        }
+
         @media print {
             body {
                 background-color: white;
@@ -144,7 +160,7 @@
                 box-shadow: none;
                 border: 1px solid #000;
             }
-            .print-button {
+            .print-button, .back-button {
                 display: none;
             }
         }
@@ -160,8 +176,6 @@
             border-radius: 3px;
         }
     </style>
-</head>
-<body>
     <div class="ticket">
         <div class="ticket-header">
             <h1>OTOBIZZ</h1>
@@ -202,8 +216,6 @@
             </div>
             
             <div class="estimation">
-                <div class="estimation-time">~<?= $estimasi_waktu ?></div>
-                <div>Estimasi Waktu Selesai</div>
                 <div class="estimation-note">
                     <?php if($antrian_sebelum > 0): ?>
                         Ada <?= $antrian_sebelum ?> antrian sebelum Anda
@@ -213,8 +225,11 @@
                 </div>
             </div>
             
+            <a href="<?= site_url('pencucian') ?>" class="back-button">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
             <button class="print-button" onclick="window.print()">
-                🖨️ Cetak Tiket
+                <i class="fas fa-print"></i> Cetak Tiket
             </button>
         </div>
         
@@ -225,19 +240,21 @@
         </div>
     </div>
 
-    <script>
-        // Auto focus untuk memudahkan print
-        window.onload = function() {
-            document.querySelector('.print-button').focus();
+<?= $this->endSection() ?>
+
+<?= $this->section('script') ?>
+<script>
+    // Auto focus untuk memudahkan print
+    $(document).ready(function() {
+        $('.print-button').focus();
+    });
+    
+    // Keyboard shortcut untuk print
+    document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey && event.key === 'p') {
+            event.preventDefault();
+            window.print();
         }
-        
-        // Keyboard shortcut untuk print
-        document.addEventListener('keydown', function(event) {
-            if (event.ctrlKey && event.key === 'p') {
-                event.preventDefault();
-                window.print();
-            }
-        });
-    </script>
-</body>
-</html>
+    });
+</script>
+<?= $this->endSection() ?>
